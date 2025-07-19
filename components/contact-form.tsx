@@ -96,9 +96,9 @@ export function ContactForm() {
                   <div>
                     <h4 className="font-semibold text-gray-900">Address</h4>
                     <p className="text-gray-600">
-                      123 Medical Center Dr
+                      123 Medical Center 
                       <br />
-                      Health City, HC 12345
+                      Kolkata, WB 712001
                     </p>
                   </div>
                 </div>
@@ -109,7 +109,7 @@ export function ContactForm() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Phone</h4>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+91 Phone Number</p>
                   </div>
                 </div>
 
@@ -119,7 +119,7 @@ export function ContactForm() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Email</h4>
-                    <p className="text-gray-600">info@medilabpro.com</p>
+                    <p className="text-gray-600">mail@email.com</p>
                   </div>
                 </div>
 
