@@ -1,11 +1,16 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Award } from "lucide-react"
 import Image from "next/image"
+import { useState } from "react"
 import { AnimatedCounter } from "./animated-counter"
 import { FadeInSection } from "./fade-in-section"
+import { BookingModal } from "./booking-modal"
 
 export function HeroSection() {
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
   return (
     <section id="home" className="bg-gradient-to-br from-blue-50 to-white py-20">
       <div className="container mx-auto px-4">
@@ -34,25 +39,28 @@ export function HeroSection() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                onClick={() => setIsBookingModalOpen(true)} 
+                size="lg" 
+                className="bg-blue-600 hover:bg-blue-700">
                   Schedule Test Now
                 </Button>
-                <Button
+                {/* <Button
                   size="lg"
                   variant="outline"
                   className="border-blue-600 text-blue-600 hover:bg-blue-50 bg-transparent"
                 >
                   View Test Packages
-                </Button>
+                </Button> */}
               </div>
 
               <div className="flex items-center gap-8 pt-4">
                 <div className="text-center">
-                  <AnimatedCounter end={50} suffix="K+" />
+                  <AnimatedCounter end={500} suffix="+" />
                   <div className="text-sm text-gray-600">Tests Completed</div>
                 </div>
                 <div className="text-center">
-                  <AnimatedCounter end={98} suffix="%" />
+                  <AnimatedCounter end={100} suffix="%" />
                   <div className="text-sm text-gray-600">Accuracy Rate</div>
                 </div>
                 <div className="text-center">
@@ -85,6 +93,8 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+      
+      <BookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
     </section>
   )
 }

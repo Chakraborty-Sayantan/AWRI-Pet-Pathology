@@ -1,7 +1,8 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { Star } from "lucide-react"
+import { Star, ChevronLeft, ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { FadeInSection } from "./fade-in-section"
@@ -9,6 +10,7 @@ import { TestimonialSkeleton } from "./skeleton-loader"
 
 export function TestimonialsSection() {
   const [isLoading, setIsLoading] = useState(true)
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
     // Simulate loading
@@ -19,38 +21,99 @@ export function TestimonialsSection() {
   const testimonials = [
     {
       name: "Sarah Johnson",
-      role: "Regular Patient",
+      role: "Dog Owner",
       rating: 5,
       comment:
-        "Excellent service and very accurate results. The staff is professional and the online booking system is so convenient. Highly recommended!",
-      avatar: "/placeholder.svg?height=40&width=40&text=SJ",
+        "Excellent service and very accurate results. The staff is professional and the online booking system is so convenient. My Golden Retriever Max got his blood work done here and the results were detailed and easy to understand.",
+      avatar: "/placeholder.svg?height=60&width=60&text=SJ",
+      petName: "Max",
+      petType: "Golden Retriever",
     },
     {
       name: "Michael Chen",
-      role: "Business Executive",
+      role: "Dog Owner",
       rating: 5,
       comment:
-        "Fast turnaround time and detailed reports. The home collection service is a game-changer for busy professionals like me.",
-      avatar: "/placeholder.svg?height=40&width=40&text=MC",
+        "Fast turnaround time and detailed reports. The home collection service is a game-changer for busy pet parents like me. Luna was comfortable during the sample collection process.",
+      avatar: "/placeholder.svg?height=60&width=60&text=MC",
+      petName: "Luna",
+      petType: "Siberian Husky",
     },
     {
       name: "Emily Rodriguez",
-      role: "Pet Owner",
+      role: "Multi-Pet Owner",
       rating: 5,
       comment:
-        "The veterinary testing for my dog was thorough and affordable. Great to see they care about our furry family members too!",
-      avatar: "/placeholder.svg?height=40&width=40&text=ER",
+        "The veterinary testing for both my pets was thorough and affordable. Great to see they care about our furry family members with such dedication and expertise.",
+      avatar: "/placeholder.svg?height=60&width=60&text=ER",
+      petName: "Buddy",
+      petType: "Labrador",
+    },
+    {
+      name: "David Thompson",
+      role: "Software Engineer",
+      rating: 5,
+      comment:
+        "Specialized testing for my parrot was handled with great care. The staff understood the unique needs of avian patients and provided excellent service throughout.",
+      avatar: "/placeholder.svg?height=60&width=60&text=DT",
+      petName: "Charlie",
+      petType: "Pug",
+    },
+    {
+      name: "Lisa Park",
+      role: "Designer",
+      rating: 5,
+      comment:
+        "Home collection service was perfect for my anxious rabbit. The technician was gentle and experienced with small animals. Results came back quickly with clear explanations.",
+      avatar: "/placeholder.svg?height=60&width=60&text=LP",
+      petName: "Snowball",
+      petType: "Spitz",
+    },
+    {
+      name: "James Wilson",
+      role: "Senior Pet Owner",
+      rating: 5,
+      comment:
+        "Regular health monitoring for my 12-year-old dog has been made so easy with their comprehensive panels. The staff always explains everything clearly and with compassion.",
+      avatar: "/placeholder.svg?height=60&width=60&text=JW",
+      petName: "Rusty",
+      petType: "Senior Beagle",
     },
   ]
 
+  // Auto-advance testimonials
+  useEffect(() => {
+    if (!isLoading) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+      }, 5000) // Change every 5 seconds
+
+      return () => clearInterval(interval)
+    }
+  }, [isLoading, testimonials.length])
+
+  const nextTestimonial = () => {
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+  }
+
+  const prevTestimonial = () => {
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+  }
+
+  const goToTestimonial = (index: number) => {
+    setCurrentIndex(index)
+  }
+
   if (isLoading) {
     return (
-      <section id="testimonials" className="py-20 bg-white">
+      <section id="testimonials" className="py-20 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">What Our Patients Say</h2>
-            <p className="text-xl text-gray-600">
-              Trusted by thousands of patients for accurate diagnostics and exceptional care.
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              What Our Pet Parents Say
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">
+              Trusted by hundreds of pet parents for accurate diagnostics and exceptional care.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -64,45 +127,112 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section id="testimonials" className="py-20 bg-white">
+    <section id="testimonials" className="py-20 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <FadeInSection>
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">What Our Patients Say</h2>
-            <p className="text-xl text-gray-600">
-              Trusted by thousands of patients for accurate diagnostics and exceptional care.
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              What Our Pet Parents Say
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300">
+              Trusted by hundreds of pet parents for accurate diagnostics and exceptional care.
             </p>
           </div>
         </FadeInSection>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <FadeInSection key={index} delay={index * 150}>
-              <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105">
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+        <div className="max-w-4xl mx-auto">
+          {/* Main Testimonial Display */}
+          <div className="relative">
+            <Card className="p-8 hover:shadow-xl transition-all duration-500 bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 border-2 border-blue-100 dark:border-gray-700">
+              <CardContent className="space-y-6">
+                {/* Rating Stars */}
+                <div className="flex items-center justify-center gap-1">
+                  {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
+                    <Star key={i} className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+
+                {/* Testimonial Text */}
+                <blockquote className="text-lg md:text-xl text-gray-700 dark:text-gray-300 text-center leading-relaxed italic">
+                  "{testimonials[currentIndex].comment}"
+                </blockquote>
+
+                {/* Pet Info */}
+                <div className="text-center">
+                  <div className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full text-sm font-medium">
+                    Pet: {testimonials[currentIndex].petName} ({testimonials[currentIndex].petType})
                   </div>
-                  <p className="text-gray-700">{testimonial.comment}</p>
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={testimonial.avatar || "/placeholder.svg"}
-                      alt={testimonial.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                    />
-                    <div>
-                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-600">{testimonial.role}</div>
+                </div>
+
+                {/* Author Info */}
+                <div className="flex items-center justify-center gap-4">
+                  <Image
+                    src={testimonials[currentIndex].avatar || "/placeholder.svg"}
+                    alt={testimonials[currentIndex].name}
+                    width={60}
+                    height={60}
+                    className="rounded-full border-4 border-blue-200 dark:border-blue-800"
+                  />
+                  <div className="text-center">
+                    <div className="font-bold text-xl text-gray-900 dark:text-white">
+                      {testimonials[currentIndex].name}
+                    </div>
+                    <div className="text-blue-600 dark:text-blue-400 font-medium">
+                      {testimonials[currentIndex].role}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </FadeInSection>
-          ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Navigation Arrows */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={prevTestimonial}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 border-2 border-blue-200 dark:border-gray-600 shadow-lg"
+            >
+              <ChevronLeft className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={nextTestimonial}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 border-2 border-blue-200 dark:border-gray-600 shadow-lg"
+            >
+              <ChevronRight className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </Button>
+          </div>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center mt-8 gap-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToTestimonial(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "bg-blue-600 dark:bg-blue-400 scale-125"
+                    : "bg-gray-300 dark:bg-gray-600 hover:bg-blue-300 dark:hover:bg-blue-500"
+                }`}
+                aria-label={`Go to testimonial ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-6 max-w-md mx-auto">
+            <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+              <div
+                className="bg-blue-600 dark:bg-blue-400 h-1 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${((currentIndex + 1) / testimonials.length) * 100}%` }}
+              />
+            </div>
+            <div className="text-center mt-2 text-sm text-gray-500 dark:text-gray-400">
+              {currentIndex + 1} of {testimonials.length}
+            </div>
+          </div>
         </div>
       </div>
     </section>

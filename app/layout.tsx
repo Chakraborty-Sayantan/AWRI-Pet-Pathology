@@ -6,8 +6,13 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: "Company Name",
-  description: "Pet Pathology Laboratory",
+  title: "AWRI",
+  description: "Pet Pathology Lab - AWRI (Animal Wellness Research Institute)",
+  icons: [
+    { rel: "icon", url: "/logo.png" },
+    { rel: "shortcut icon", url: "/logo.png" },
+    { rel: "apple-touch-icon", url: "/logo.png" },
+  ],
 }
 
 export default function RootLayout({
