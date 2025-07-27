@@ -79,7 +79,7 @@ export function HeroSection() {
               height={600}
               className="rounded-2xl shadow-2xl"
             />
-            <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
+            {/* <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
               <div className="flex items-center gap-3">
                 <div className="bg-green-100 p-2 rounded-full">
                   <Award className="h-6 w-6 text-green-600" />
@@ -89,7 +89,7 @@ export function HeroSection() {
                   <div className="text-sm text-gray-600">Quality Assured</div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
