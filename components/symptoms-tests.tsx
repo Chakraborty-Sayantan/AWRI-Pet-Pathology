@@ -110,6 +110,11 @@ export function SymptomsTestSection() {
               Use our Dynamic table to find what test is recommended for your Pet's Symptoms
             </p>
           </div>
+          <div className="max-w-4xl mx-auto mb-10">
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-400 p-4 rounded">
+              <span className="font-semibold">Disclaimer:</span> This is an AI generated information and should not be considered as absolute. All Symptoms should be consulted with a practising veterinary doctor before or after the test.
+            </div>
+          </div>
 
           <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* Symptoms Section */}

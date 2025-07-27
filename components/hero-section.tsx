@@ -71,7 +71,7 @@ export function HeroSection() {
             </div>
           </FadeInSection>
 
-          <div className="relative ml-12">
+          <div className="relative ml-0 mx-auto sm:ml-12 sm:mx-0">
             <Image
               src="/hero.jpg"
               alt="Modern pathological laboratory"
