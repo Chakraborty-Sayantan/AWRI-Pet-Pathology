@@ -34,7 +34,7 @@ export function NavigationBar() {
             <img
               src="/logo.png"
               alt="AWRI Logo"
-              className="h-12 w-20 object-contain"
+              className="h-12 w-20 object-contain transition-transform duration-300 hover:scale-110 hover:rotate-0"
             />
             <span className="text-xl font-bold text-gray-800 dark:text-gray-200">AWRI (Animal Wellness Research Institute)</span>
           </div>
