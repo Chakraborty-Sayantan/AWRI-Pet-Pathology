@@ -1,86 +1,129 @@
-# Pathological Lab Application
+# AWRI - Animal Wellness Research Institute
 
-A modern, responsive Next.js application for a pathological laboratory with comprehensive features including:
+A modern, responsive Next.js application for AWRI (Animal Wellness Research Institute), featuring a comprehensive pathological laboratory website with advanced booking capabilities and exceptional user experience.
 
-## Features
+## 🌟 Key Features
 
-- 🔍 **Advanced Search** - Smart search functionality with autocomplete
-- 📅 **Booking System** - Multi-step appointment booking modal
-- 🌙 **Dark Mode** - Complete dark/light theme support
-- 📱 **Mobile Responsive** - Optimized for all device sizes
-- ⚡ **Fast Loading** - Skeleton loaders and optimized performance
-- 🎨 **Smooth Animations** - Scroll-triggered animations and transitions
+### 🔍 **Advanced Navigation**
+- Smooth scrolling navigation with proper offset handling
+- Responsive mobile navigation with collapsible interface
+- Sticky header with operating hours and contact information
 
-## Getting Started
+### 📅 **Comprehensive Booking System**
+- Multi-step appointment booking modal
+- Extensive test catalog with categories and pricing
+- Real-time form validation and error handling
+- Flexible appointment scheduling options
 
-1. Install dependencies:
-\`\`\`bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-\`\`\`
+### 🎨 **Modern UI/UX**
+- Complete dark/light theme support with smooth transitions
+- Responsive design optimized for all device sizes
+- Smooth animations and scroll-triggered effects
+- Professional color scheme and typography
 
-2. Run the development server:
-\`\`\`bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-\`\`\`
+### 📱 **Mobile-First Experience**
+- Mobile-optimized sticky hours banner with expandable interface
+- Touch-friendly navigation and interactions
+- Responsive layout that adapts to all screen sizes
+- Optimized performance with skeleton loaders
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+### ⚡ **Performance & Accessibility**
+- Fast loading with optimized components
+- WCAG compliant accessibility features
+- SEO optimized structure
+- Progressive enhancement
 
-## Tech Stack
+## 🏗️ Tech Stack
 
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Utility-first CSS framework
-- **Shadcn/ui** - Modern UI components
-- **Radix UI** - Accessible component primitives
-- **Lucide React** - Beautiful icons
-- **Next Themes** - Dark mode support
+- **Framework**: Next.js 14
+- **Language**: TypeScript for type safety
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: Shadcn/ui with Radix UI primitives
+- **Icons**: Lucide React
+- **Theming**: Next Themes
+- **Forms**: React Hook Form with Zod validation
+- **Animations**: Framer Motion and CSS transitions
 
-## Project Structure
+## 📋 Core Components
 
-\`\`\`
-├── app/                 # Next.js App Router
-├── components/          # Reusable components
-├── lib/                 # Utility functions
-├── public/              # Static assets
-└── ...config files
-\`\`\`
+### **Navigation & Header**
+- Responsive navigation bar with mobile menu
+- Sticky hours banner with collapsible mobile interface
+- Smooth scroll navigation with proper offset handling
 
-## Components
+### **Content Sections**
+- **Hero Section**: Animated counters and compelling messaging
+- **Workflow Section**: Step-by-step process visualization
+- **Testimonials**: Customer feedback and reviews
+- **FAQ Section**: Expandable questions and answers
+- **Footer**: Comprehensive footer with links and information
 
-- **Navigation** - Responsive navigation with mobile menu
-- **Hero Section** - Landing section with animated counters
-- **Search** - Advanced search with autocomplete
-- **Booking Modal** - Multi-step appointment booking
-- **Testimonials** - Customer feedback section
-- **FAQ** - Expandable questions and answers
-- **Contact Form** - Contact form with validation
-- **Footer** - Complete footer with links
+### **Interactive Features**
+- **Booking Modal**: Multi-step appointment booking system
+- **Scroll Animations**: Fade-in effects and smooth transitions
+- **Loading States**: Skeleton loaders and loading spinners
 
-## Customization
+## 🎯 Project Highlights
 
-The application is fully customizable. You can:
+### **Mobile Experience**
+- Collapsible sticky banner for mobile devices
+- Touch-optimized navigation and interactions
+- Responsive design that works seamlessly across devices
+- Mobile-first approach to all interactions
 
-- Modify colors in `tailwind.config.ts`
-- Update content in component files
-- Add new sections by creating components
-- Customize the booking flow in `booking-modal.tsx`
+### **User Experience**
+- Intuitive navigation with smooth scrolling
+- Professional booking flow with clear steps
+- Accessible design with proper contrast and focus states
+- Fast loading times with optimized assets
 
-## Deployment
+### **Technical Excellence**
+- TypeScript for robust type safety
+- Modern React patterns and best practices
+- Optimized bundle size and performance
+- Clean, maintainable code structure
 
-The easiest way to deploy is using [Vercel](https://vercel.com):
+## 🚀 Features Overview
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Deploy automatically
+| Feature | Description |
+|---------|-------------|
+| **Responsive Design** | Optimized for desktop, tablet, and mobile |
+| **Booking System** | Multi-step appointment booking with test selection |
+| **Animations** | Smooth scroll animations and transitions |
+| **Accessibility** | WCAG compliant with proper ARIA labels |
+| **Performance** | Optimized loading with skeleton screens |
+| **SEO** | Search engine optimized structure |
 
-## License
+## 📱 Mobile Features
+
+- **Collapsible Sticky Banner**: Shows essential info with expandable details
+- **Touch-Friendly Navigation**: Proper touch targets and gestures
+- **Responsive Layout**: Adapts perfectly to all screen sizes
+- **Mobile Menu**: Slide-out navigation with smooth animations
+- **Optimized Forms**: Mobile-friendly form inputs and validation
+
+## 🎨 Design System
+
+- **Color Palette**: Professional blue theme
+- **Typography**: Clean, readable fonts with proper hierarchy
+- **Spacing**: Consistent spacing system using Tailwind utilities
+- **Components**: Reusable UI components with consistent styling
+- **Animations**: Subtle, purposeful animations that enhance UX
+  
+
+## 🔧 Customization
+
+The application is built with customization in mind:
+
+- **Theme Colors**: Easily customizable in `tailwind.config.ts`
+- **Content**: All text and images can be updated in component files
+- **Components**: Modular design allows easy addition of new sections
+- **Styling**: Consistent design system makes styling changes straightforward
+
+## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+**Built with ❤️ for AWRI - Animal Wellness Research Institute**
