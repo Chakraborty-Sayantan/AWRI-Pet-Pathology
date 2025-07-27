@@ -22,22 +22,20 @@ export function MobileNavigation() {
     e.preventDefault()
     setIsSheetOpen(false)
     
-    // Use setTimeout to ensure the sheet closes before scrolling
+    // Use a longer timeout to ensure the sheet is fully closed
     setTimeout(() => {
-      const element = document.querySelector(href)
+      const element = document.querySelector(href) as HTMLElement
       if (element) {
-        // Different offset for mobile vs desktop
-        const isMobile = window.innerWidth < 768
-        const headerOffset = isMobile ? 140 : 120 // Account for sticky header + navigation
-        const elementPosition = element.getBoundingClientRect().top
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+        const elementTop = element.offsetTop
+        const offset = 140 // Mobile offset for sticky header + navigation
+        const targetPosition = elementTop - offset
 
         window.scrollTo({
-          top: offsetPosition,
+          top: targetPosition,
           behavior: "smooth"
         })
       }
-    }, 150)
+    }, 300)
   }
 
   return (

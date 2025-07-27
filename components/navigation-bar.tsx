@@ -12,16 +12,15 @@ export function NavigationBar() {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault()
     
-    const element = document.querySelector(href)
+    const element = document.querySelector(href) as HTMLElement
     if (element) {
-      // Different offset for mobile vs desktop
+      const elementTop = element.offsetTop
       const isMobile = window.innerWidth < 768
-      const headerOffset = isMobile ? 140 : 120 // Account for sticky header + navigation
-      const elementPosition = element.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+      const offset = isMobile ? 140 : 120
+      const targetPosition = elementTop - offset
 
       window.scrollTo({
-        top: offsetPosition,
+        top: targetPosition,
         behavior: "smooth"
       })
     }
