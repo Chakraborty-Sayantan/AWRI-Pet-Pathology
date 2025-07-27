@@ -4,7 +4,12 @@ A modern, responsive Next.js application for AWRI (Animal Wellness Research Inst
 
 ## 🌟 Key Features
 
+<<<<<<< HEAD
 ### 🔍 **Advanced Navigation**
+=======
+### 🔍 **Advanced Search & Navigation**
+- Smart search functionality with autocomplete
+>>>>>>> release/v1.5.0
 - Smooth scrolling navigation with proper offset handling
 - Responsive mobile navigation with collapsible interface
 - Sticky header with operating hours and contact information
@@ -35,12 +40,20 @@ A modern, responsive Next.js application for AWRI (Animal Wellness Research Inst
 
 ## 🏗️ Tech Stack
 
+<<<<<<< HEAD
 - **Framework**: Next.js 14
+=======
+- **Framework**: Next.js 14 with App Router
+>>>>>>> release/v1.5.0
 - **Language**: TypeScript for type safety
 - **Styling**: Tailwind CSS with custom design system
 - **UI Components**: Shadcn/ui with Radix UI primitives
 - **Icons**: Lucide React
+<<<<<<< HEAD
 - **Theming**: Next Themes
+=======
+- **Theming**: Next Themes for dark mode
+>>>>>>> release/v1.5.0
 - **Forms**: React Hook Form with Zod validation
 - **Animations**: Framer Motion and CSS transitions
 
@@ -50,15 +63,27 @@ A modern, responsive Next.js application for AWRI (Animal Wellness Research Inst
 - Responsive navigation bar with mobile menu
 - Sticky hours banner with collapsible mobile interface
 - Smooth scroll navigation with proper offset handling
+<<<<<<< HEAD
+=======
+- Dark mode toggle integration
+>>>>>>> release/v1.5.0
 
 ### **Content Sections**
 - **Hero Section**: Animated counters and compelling messaging
 - **Workflow Section**: Step-by-step process visualization
 - **Testimonials**: Customer feedback and reviews
 - **FAQ Section**: Expandable questions and answers
+<<<<<<< HEAD
 - **Footer**: Comprehensive footer with links and information
 
 ### **Interactive Features**
+=======
+- **Contact Form**: Validated contact form with multiple channels
+- **Footer**: Comprehensive footer with links and information
+
+### **Interactive Features**
+- **Search Functionality**: Advanced search with autocomplete
+>>>>>>> release/v1.5.0
 - **Booking Modal**: Multi-step appointment booking system
 - **Scroll Animations**: Fade-in effects and smooth transitions
 - **Loading States**: Skeleton loaders and loading spinners
@@ -88,7 +113,13 @@ A modern, responsive Next.js application for AWRI (Animal Wellness Research Inst
 | Feature | Description |
 |---------|-------------|
 | **Responsive Design** | Optimized for desktop, tablet, and mobile |
+<<<<<<< HEAD
 | **Booking System** | Multi-step appointment booking with test selection |
+=======
+| **Dark Mode** | Complete theme switching with system preference detection |
+| **Booking System** | Multi-step appointment booking with test selection |
+| **Search** | Advanced search with autocomplete and filtering |
+>>>>>>> release/v1.5.0
 | **Animations** | Smooth scroll animations and transitions |
 | **Accessibility** | WCAG compliant with proper ARIA labels |
 | **Performance** | Optimized loading with skeleton screens |
@@ -104,12 +135,27 @@ A modern, responsive Next.js application for AWRI (Animal Wellness Research Inst
 
 ## 🎨 Design System
 
+<<<<<<< HEAD
 - **Color Palette**: Professional blue theme
+=======
+- **Color Palette**: Professional blue theme with dark mode support
+>>>>>>> release/v1.5.0
 - **Typography**: Clean, readable fonts with proper hierarchy
 - **Spacing**: Consistent spacing system using Tailwind utilities
 - **Components**: Reusable UI components with consistent styling
 - **Animations**: Subtle, purposeful animations that enhance UX
+<<<<<<< HEAD
   
+=======
+
+## 📊 Performance Metrics
+
+- **Lighthouse Score**: 90+ across all categories
+- **First Contentful Paint**: < 1.5s
+- **Largest Contentful Paint**: < 2.5s
+- **Cumulative Layout Shift**: < 0.1
+- **First Input Delay**: < 100ms
+>>>>>>> release/v1.5.0
 
 ## 🔧 Customization
 
