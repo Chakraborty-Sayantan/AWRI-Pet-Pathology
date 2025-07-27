@@ -56,4 +56,15 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 140px; /* Mobile: Account for sticky header + navigation */
+  }
+  
+  @media (min-width: 768px) {
+    html {
+      scroll-padding-top: 120px; /* Desktop: Account for sticky header + navigation */
+    }
+  }
 }

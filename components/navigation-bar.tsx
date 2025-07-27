@@ -8,6 +8,25 @@ import { useState } from "react"
 
 export function NavigationBar() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    
+    const element = document.querySelector(href)
+    if (element) {
+      // Different offset for mobile vs desktop
+      const isMobile = window.innerWidth < 768
+      const headerOffset = isMobile ? 140 : 120 // Account for sticky header + navigation
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      })
+    }
+  }
+
   return (
     <nav className="bg-white shadow-md border-b dark:bg-gray-900 dark:border-gray-800">
       <div className="container mx-auto px-4">
@@ -22,36 +41,40 @@ export function NavigationBar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            <Link
+            <a
               href="#home"
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
+              onClick={(e) => handleNavClick(e, "#home")}
+              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
             >
               Home
-            </Link>
-            <Link
+            </a>
+            <a
               href="#services"
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
+              onClick={(e) => handleNavClick(e, "#services")}
+              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
             >
               Workflow
-            </Link>
+            </a>
         {/*     <Link
               href="#about"
               className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
             >
               About
             </Link> */}
-            <Link
+            <a
               href="#testimonials"
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
+              onClick={(e) => handleNavClick(e, "#testimonials")}
+              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
             >
               Testimonials
-            </Link>
-            <Link
+            </a>
+            <a
               href="#contact"
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
+              onClick={(e) => handleNavClick(e, "#contact")}
+              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
             >
               Contact
-            </Link>
+            </a>
             <button
               onClick={() => setIsBookingModalOpen(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
