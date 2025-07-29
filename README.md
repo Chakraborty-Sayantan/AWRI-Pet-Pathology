@@ -125,7 +125,7 @@ The application is built with customization in mind:
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+© 2025, AWRI. All rights reserved.
 
 
 **Built with ❤️ for AWRI - Animal Wellness Research Institute.**
