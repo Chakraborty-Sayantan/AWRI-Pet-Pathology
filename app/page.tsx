@@ -1,4 +1,6 @@
 import { StickyHoursBanner } from "@/components/sticky-hours-banner"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { NavigationBar } from "@/components/navigation-bar"
 import { TypewriterText } from "@/components/typewriter-text"
 import { HeroSection } from "@/components/hero-section"
@@ -27,6 +29,8 @@ export default function PathologicalLabPage() {
           />
         </div>
       </section>
+      <Analytics/>
+      <SpeedInsights />
       <HeroSection />
       <SymptomsTestSection />
       <WorkflowSection />
