@@ -1,24 +1,24 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { LoadingSpinner } from "./loading-spinner"
-import { CalendarIcon, CheckCircle, TestTube } from "lucide-react"
-import { format } from "date-fns"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import { CalendarIcon, CheckCircle, TestTube } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useMemo, useState } from "react"
+import { LoadingSpinner } from "./loading-spinner"
+
 
 export interface BookingModalProps {
   isOpen: boolean;
@@ -26,38 +26,40 @@ export interface BookingModalProps {
 }
 
 export function BookingModal({ isOpen, onClose }: BookingModalProps) {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isBooked, setIsBooked] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date>()
+  const [confirmedBookingId, setConfirmedBookingId] = useState<number | null>(null);
+
   const [formData, setFormData] = useState({
-    // Personal Info
     fullName: "",
     email: "",
     phone: "",
-   /*  dateOfBirth: "",
-    gender: "", */
-
-    // Test Selection
     selectedTests: [] as Array<{ id: string; name: string; price: number; category: string }>,
     testPackage: "",
-
-    // Appointment Details
-    appointmentType: "lab-visit",
+    appointmentType: "home-collection",
     timeSlot: "",
     specialInstructions: "",
-
-    // Address (for home collection)
     address: "",
     city: "",
     zipCode: "",
-
-    // Payment
     paymentMethod: "card",
     agreeToTerms: false,
   })
 
-  const testCategories = {
+  
+  const [formErrors, setFormErrors] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    zipCode: "",
+  });
+
+ const testCategories = {
     "HEMATOLOGY & COAGULATION": [
       { id: "AWRI01", name: "HEMOGLOBIN; HB", price: 150 },
       { id: "AWRI02", name: "COMPLETE BLOOD COUNT; CBC", price: 400 },
@@ -226,11 +228,111 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     ],
   }
 
+
   const [selectedCategory, setSelectedCategory] = useState("")
   const [selectedTest, setSelectedTest] = useState("")
 
-  // Declare timeSlots variable
-  const timeSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"]
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error for the field when user starts typing
+    if (formErrors[field as keyof typeof formErrors]) {
+        setFormErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  }
+
+    // --- DYNAMIC TIME SLOTS ---
+  const timeSlots = useMemo(() => {
+    if (!selectedDate) return [];
+    
+    const day = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+    
+    if (day === 0) { // Sunday
+        return ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
+    } else if (day === 6) { // Saturday
+        return ["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"];
+    } else { // Weekdays (Mon-Fri)
+        return ["7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"];
+    }
+  }, [selectedDate]);
+
+    
+    const validateStep1 = () => {
+      const errors = { 
+        fullName: "", 
+        email: "", 
+        phone: "", 
+        address: "", 
+        city: "", 
+        zipCode: "" 
+      };
+      let isValid = true;
+      const strictEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const indianPhoneRegex = /^[6-9]\d{9}$/;
+    
+      if (!formData.fullName.trim()) {
+          errors.fullName = "Full name is required.";
+          isValid = false;
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName)) {
+          errors.fullName = "Full name can only contain letters and spaces.";
+          isValid = false;
+      }
+    
+      if (formData.email && !strictEmailRegex.test(formData.email)) {
+          errors.email = "Please enter a valid email address.";
+          isValid = false;
+      }
+    
+      if (!formData.phone.trim()) {
+          errors.phone = "Phone number is required.";
+          isValid = false;
+      } else if (!indianPhoneRegex.test(formData.phone)) {
+          errors.phone = "Please enter a valid 10-digit Indian mobile number.";
+          isValid = false;
+      }
+    
+      setFormErrors(errors);
+      return isValid;
+    };
+
+    const validateStep3 = () => {
+    const errors = { ...formErrors, address: "", city: "", zipCode: "" };
+    let isValid = true;
+    const indianZipRegex = /^\d{6}$/;
+
+    if (formData.appointmentType === 'home-collection') {
+        if (!formData.address.trim()) {
+            errors.address = "Street address is required for home collection.";
+            isValid = false;
+        }
+        if (!formData.city.trim()) {
+            errors.city = "City is required for home collection.";
+            isValid = false;
+        }
+        if (!formData.zipCode.trim()) {
+            errors.zipCode = "ZIP code is required for home collection.";
+            isValid = false;
+        } else if (!indianZipRegex.test(formData.zipCode.trim())) {
+            errors.zipCode = "Please enter a valid 6-digit Indian ZIP code.";
+            isValid = false;
+        }
+    }
+    setFormErrors(errors);
+    return isValid;
+  }
+  
+    const nextStep = () => {
+      if (currentStep === 1) {
+          if (!validateStep1()) {
+              return;
+          }
+      } if (currentStep === 3) {
+        if (!validateStep3()) return;
+    }
+      setCurrentStep((prev) => Math.min(prev + 1, 4));
+    };
+  
+    const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
+  
 
   const handleAddTest = () => {
     if (selectedTest && selectedCategory) {
@@ -254,466 +356,299 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   }
 
   const getTotalPrice = () => {
-    return formData.selectedTests.reduce((total, test) => total + test.price, 0)
+    const testsTotal = formData.selectedTests.reduce((total, test) => total + test.price, 0)
+    const collectionFee = formData.appointmentType === "home-collection" ? 200 : 0
+    return testsTotal + collectionFee
   }
-
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
+  
   const handleSubmit = async () => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      const response = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          phone: "+91" + formData.phone, 
+          appointmentDate: selectedDate ? format(selectedDate, "yyyy-MM-dd") : null,
+        }),
+      });
 
-    setIsSubmitting(false)
-    setIsBooked(true)
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Booking failed:", errorData);
+        alert(`Booking failed: ${errorData.errors.map((e: any) => e.msg).join(', ')}`);
+        return;
+      }
 
-    // Reset after 15 seconds
-    setTimeout(() => {
-      setIsBooked(false)
-      setCurrentStep(1)
-      onClose()
+      // Capture the booking ID from the response
+      const successData = await response.json();
+       router.push(`/booking-confirmed?id=${successData.bookingId}&name=${encodeURIComponent(formData.fullName)}`);
+
+      // Reset form after a delay
+      setTimeout(() => {
+        setIsBooked(false);
+        setConfirmedBookingId(null);
+        setCurrentStep(1);
+        onClose();
       setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-/*         dateOfBirth: "",
-        gender: "", */
-        selectedTests: [],
-        testPackage: "",
-        appointmentType: "lab-visit",
-        timeSlot: "",
-        specialInstructions: "",
-        address: "",
-        city: "",
-        zipCode: "",
-        paymentMethod: "card",
-        agreeToTerms: false,
-      })
-      setSelectedCategory("")
-      setSelectedTest("")
-    }, 15000)
-  }
+        fullName: "", email: "", phone: "", selectedTests: [], testPackage: "",
+        appointmentType: "home-collection", timeSlot: "", specialInstructions: "",
+        address: "", city: "", zipCode: "", paymentMethod: "card", agreeToTerms: false,
+      });
+      setSelectedDate(undefined);
+      setCurrentStep(1);
+        setSelectedCategory("");
+        setSelectedTest("");
+      }, 15000);
 
-  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 4))
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1))
+    } catch (error) {
+      console.error("An error occurred:", error);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+};
 
-  const getSelectedPackage = () => {
-    return null
-  }
-
-  if (isBooked) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogTrigger asChild>
-          {/* The trigger prop is no longer needed here as it's passed as a prop */}
-          <Button className="bg-blue-600 hover:bg-blue-700">Book Test</Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-md">
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h3>
-            <p className="text-gray-600 mb-4">
-              Your appointment has been scheduled successfully. You'll receive a confirmation email shortly.
-            </p>
-            <Badge className="bg-blue-100 text-blue-800">
-              Booking ID: #BK{Math.random().toString(36).substr(2, 9).toUpperCase()}
-            </Badge>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )
+  if (!isOpen) {
+    return null;
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTrigger asChild>
-        {/* The trigger prop is no longer needed here as it's passed as a prop */}
-{/*         <Button className="bg-blue-600 hover:bg-blue-700">Book Test</Button> */}
-      </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <TestTube className="h-5 w-5 text-blue-600" />
-            Book Your Test Appointment
-          </DialogTitle>
-        </DialogHeader>
-
-        {/* Progress Steps */}
-        <div className="flex items-center justify-between mb-8">
-          {[1, 2, 3, 4].map((step) => (
-            <div key={step} className="flex items-center">
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                  currentStep >= step ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600",
-                )}
-              >
-                {step}
-              </div>
-              {step < 4 && <div className={cn("w-16 h-1 mx-2", currentStep > step ? "bg-blue-600" : "bg-gray-200")} />}
-            </div>
-          ))}
+      {isBooked ? (
+    <div className="text-center py-8">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="h-8 w-8 text-green-600" />
         </div>
-
-        {/* Step 1: Personal Information */}
-        {currentStep === 1 && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Personal Information</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="fullName">Full Name *</Label>
-                <Input
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => handleInputChange("fullName", e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  required
-                />
-              </div>
-              {/* <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                <Input
-                  id="dateOfBirth"
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
-                />
-              </div> */}
-              {/* <div className="space-y-2">
-                <Label>Gender</Label>
-                <Select onValueChange={(value) => handleInputChange("gender", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                    <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
-            </div>
-          </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h3>
+        <p className="text-gray-600 mb-4">
+            Your appointment has been scheduled successfully. You can now track your booking. 
+        </p>
+        {/* --- Display the real booking ID */}
+        {confirmedBookingId && (
+            <Badge className="bg-blue-100 text-blue-800">
+                Booking ID: #{confirmedBookingId}
+            </Badge>
         )}
+    </div>
+) : (
+        <>
+            <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                    <TestTube className="h-5 w-5 text-blue-600" />
+                    Book Your Test Appointment
+                </DialogTitle>
+            </DialogHeader>
 
-        {/* Step 2: Test Selection */}
-        {currentStep === 2 && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Select Individual Tests</h3>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Test Category</Label>
-                <Select onValueChange={setSelectedCategory} value={selectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(testCategories).map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Select Test</Label>
-                <Select onValueChange={setSelectedTest} value={selectedTest} disabled={!selectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select test" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {selectedCategory &&
-                      testCategories[selectedCategory as keyof typeof testCategories].map((test) => (
-                        <SelectItem key={test.id} value={test.id}>
-                          {test.name} - ₹{test.price}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button onClick={handleAddTest} disabled={!selectedTest || !selectedCategory} className="w-full md:w-auto">
-              Add Test
-            </Button>
-
-            {formData.selectedTests.length > 0 && (
-              <Card>
-                <CardContent className="p-4">
-                  <h4 className="font-semibold mb-3">Selected Tests</h4>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {formData.selectedTests.map((test) => (
-                      <div key={test.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <div className="flex-1">
-                          <span className="text-sm font-medium">{test.name}</span>
-                          <span className="text-xs text-gray-500 block">{test.category}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold">₹{test.price}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRemoveTest(test.id)}
-                            className="h-6 w-6 p-0"
-                          >
-                            -
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t pt-2 mt-3 flex justify-between font-semibold">
-                    <span>Total:</span>
-                    <span>₹{getTotalPrice()}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Step 3: Appointment Details */}
-        {currentStep === 3 && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Appointment Details</h3>
-
-            <div className="space-y-4">
-              <Label>Appointment Type</Label>
-              <RadioGroup
-                value={formData.appointmentType}
-                onValueChange={(value) => handleInputChange("appointmentType", value)}
-              >
-                {/* <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="lab-visit" id="lab-visit" />
-                  <Label htmlFor="lab-visit">Visit Lab</Label>
-                </div> */}
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="home-collection" id="home-collection" />
-                  <Label htmlFor="home-collection">Home Collection (+₹200)</Label>
+            <div className="flex items-center justify-between mb-8">
+            {[1, 2, 3, 4].map((step) => (
+                <div key={step} className="flex items-center">
+                <div
+                    className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                    currentStep >= step ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600",
+                    )}
+                >
+                    {step}
                 </div>
-              </RadioGroup>
+                {step < 4 && <div className={cn("w-16 h-1 mx-2", currentStep > step ? "bg-blue-600" : "bg-gray-200")} />}
+                </div>
+            ))}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Select Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !selectedDate && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} initialFocus />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Time Slot</Label>
-                <Select onValueChange={(value) => handleInputChange("timeSlot", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {formData.appointmentType === "home-collection" && (
-              <div className="space-y-4">
-                <h4 className="font-medium">Collection Address</h4>
-                <div className="grid md:grid-cols-2 gap-4">
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Personal Information</h3>
+                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="address">Street Address</Label>
-                    <Input
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange("address", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => handleInputChange("city", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="zipCode">ZIP Code</Label>
-                    <Input
-                      id="zipCode"
-                      value={formData.zipCode}
-                      onChange={(e) => handleInputChange("zipCode", e.target.value)}
-                    />
+                      <Label htmlFor="fullName">Full Name *</Label>
+                      <Input id="fullName" value={formData.fullName} onChange={(e) => handleInputChange("fullName", e.target.value)} required />
+                      
+                      {formErrors.fullName && <p className="text-sm text-red-500 mt-1">{formErrors.fullName}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} />
+                      
+                      {formErrors.email && <p className="text-sm text-red-500 mt-1">{formErrors.email}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number *</Label>
+                      
+                      <div className="flex items-center gap-2">
+                          <div className="flex h-10 w-[70px] items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm">
+                              +91
+                          </div>
+                          <div className="flex-1 space-y-2">
+                              <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} required placeholder="9876543210" />
+                              {formErrors.phone && <p className="text-sm text-red-500">{formErrors.phone}</p>}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+              )}
+            {currentStep === 2 && (
+            <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Select Individual Tests</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label>Test Category</Label>
+                    <Select onValueChange={setSelectedCategory} value={selectedCategory}>
+                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                    <SelectContent>
+                        {Object.keys(testCategories).map((category) => (<SelectItem key={category} value={category}>{category}</SelectItem>))}
+                    </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label>Select Test</Label>
+                    <Select onValueChange={setSelectedTest} value={selectedTest} disabled={!selectedCategory}>
+                    <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
+                    <SelectContent>
+                        {selectedCategory && testCategories[selectedCategory as keyof typeof testCategories].map((test) => (
+                        <SelectItem key={test.id} value={test.id}>{test.name} - ₹{test.price}</SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                </div>
+                </div>
+                <Button onClick={handleAddTest} disabled={!selectedTest || !selectedCategory} className="w-full md:w-auto">Add Test</Button>
+                {formData.selectedTests.length > 0 && (
+                <Card>
+                    <CardContent className="p-4">
+                    <h4 className="font-semibold mb-3">Selected Tests</h4>
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {formData.selectedTests.map((test) => (
+                        <div key={test.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <div className="flex-1">
+                            <span className="text-sm font-medium">{test.name}</span>
+                            <span className="text-xs text-gray-500 block">{test.category}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">₹{test.price}</span>
+                            <Button variant="outline" size="sm" onClick={() => handleRemoveTest(test.id)} className="h-6 w-6 p-0">-</Button>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                    <div className="border-t pt-2 mt-3 flex justify-between font-semibold">
+                        <span>Total:</span>
+                        <span>₹{getTotalPrice()}</span>
+                    </div>
+                    </CardContent>
+                </Card>
+                )}
+            </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="instructions">Special Instructions</Label>
-              <Textarea
-                id="instructions"
-                value={formData.specialInstructions}
-                onChange={(e) => handleInputChange("specialInstructions", e.target.value)}
-                placeholder="Any special requirements or instructions..."
-                rows={3}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Payment & Confirmation */}
-        {currentStep === 4 && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Payment & Confirmation</h3>
-
-            {/* Booking Summary */}
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-semibold mb-3">Booking Summary</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Name:</span>
-                    <span>{formData.fullName}</span>
+                        {currentStep === 3 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Appointment Details</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Select Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !selectedDate && "text-muted-foreground")}>
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar selected={selectedDate} onSelect={setSelectedDate} disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))} />
+                      </PopoverContent>
+                    </Popover>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Email:</span>
-                    <span>{formData.email || "Not provided"}</span>
+                  <div className="space-y-2">
+                    <Label>Time Slot</Label>
+                    <Select onValueChange={(value) => handleInputChange("timeSlot", value)} disabled={!selectedDate}>
+                      <SelectTrigger><SelectValue placeholder="Select a time" /></SelectTrigger>
+                      <SelectContent>
+                        {timeSlots.map((time) => (<SelectItem key={time} value={time}>{time}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Phone:</span>
-                    <span>{formData.phone}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Selected Tests:</span>
-                    <span>{formData.selectedTests.length} tests</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Date:</span>
-                    <span>{selectedDate ? format(selectedDate, "PPP") : "Not selected"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Time:</span>
-                    <span>{formData.timeSlot || "Not selected"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Type:</span>
-                    <span>{formData.appointmentType === "Home Collection"}</span>
-                  </div>
-                  {formData.appointmentType === "home-collection" && (
-                    <div className="flex justify-between">
-                      <span>Collection Fee:</span>
-                      <span>₹200</span>
+                </div>
+                {formData.appointmentType === "home-collection" && (
+                  <div className="space-y-4 pt-4 border-t">
+                    <h4 className="font-medium">Collection Address</h4>
+                    <div className="space-y-2">
+                        <Label htmlFor="address">Street Address *</Label>
+                        <Input id="address" value={formData.address} onChange={(e) => handleInputChange("address", e.target.value)} />
+                        {formErrors.address && <p className="text-sm text-red-500 mt-1">{formErrors.address}</p>}
                     </div>
-                  )}
-                  <div className="border-t pt-2 flex justify-between font-semibold">
-                    <span>Total:</span>
-                    <span>₹{getTotalPrice() + (formData.appointmentType === "home-collection" ? 200 : 0)}</span>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="city">City *</Label>
+                        <Input id="city" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} />
+                        {formErrors.city && <p className="text-sm text-red-500 mt-1">{formErrors.city}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="zipCode">ZIP Code *</Label>
+                        <Input id="zipCode" value={formData.zipCode} onChange={(e) => handleInputChange("zipCode", e.target.value)} />
+                        {formErrors.zipCode && <p className="text-sm text-red-500 mt-1">{formErrors.zipCode}</p>}
+                      </div>
+                    </div>
                   </div>
+                )}
+                <div className="space-y-2">
+                    <Label htmlFor="instructions">Special Instructions</Label>
+                    <Textarea id="instructions" value={formData.specialInstructions} onChange={(e) => handleInputChange("specialInstructions", e.target.value)} placeholder="Any special requirements..." rows={3} />
                 </div>
-              </CardContent>
-            </Card>
-
-            <div className="space-y-4">
-              <Label>Payment Method</Label>
-              <RadioGroup
-                value={formData.paymentMethod}
-                onValueChange={(value) => handleInputChange("paymentMethod", value)}
-              >
-                 {/* <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="card" id="card" />
-                  <Label htmlFor="card">Credit/Debit Card</Label>
-                </div>  */} 
+              </div>
+            )}
+            {currentStep === 4 && (
+            <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Payment & Confirmation</h3>
+                <Card>
+                <CardContent className="p-4">
+                    <h4 className="font-semibold mb-3">Booking Summary</h4>
+                    <div className="space-y-2 text-sm">
+                    <div className="flex justify-between"><span>Name:</span><span>{formData.fullName}</span></div>
+                    <div className="flex justify-between"><span>Email:</span><span>{formData.email || "Not provided"}</span></div>
+                    <div className="flex justify-between"><span>Phone:</span><span>{formData.phone}</span></div>
+                    <div className="flex justify-between"><span>Tests:</span><span>{formData.selectedTests.length}</span></div>
+                    <div className="flex justify-between"><span>Date:</span><span>{selectedDate ? format(selectedDate, "PPP") : "Not selected"}</span></div>
+                    <div className="flex justify-between"><span>Time:</span><span>{formData.timeSlot || "Not selected"}</span></div>
+                    <div className="flex justify-between border-t pt-2 font-semibold">
+                        <span>Total:</span>
+                        <span>₹{getTotalPrice()}</span>
+                    </div>
+                    </div>
+                </CardContent>
+                </Card>
+                <div className="space-y-4">
+                <Label>Payment Method</Label>
+                <RadioGroup value={formData.paymentMethod} onValueChange={(value) => handleInputChange("paymentMethod", value)}>
+                    <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="cash" id="cash" />
+                    <Label htmlFor="cash">Cash on Collection</Label>
+                    </div>
+                </RadioGroup>
+                </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="cash" id="cash" />
-                  <Label htmlFor="cash">Pay at Lab/Cash on Collection</Label>
+                <Checkbox id="terms" checked={formData.agreeToTerms} onCheckedChange={(checked) => handleInputChange("agreeToTerms", !!checked)} />
+                <Label htmlFor="terms" className="text-sm">I agree to the terms and conditions</Label>
                 </div>
-              </RadioGroup>
             </div>
+            )}
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="terms"
-                checked={formData.agreeToTerms}
-                onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked)}
-              />
-              <Label htmlFor="terms" className="text-sm">
-                I agree to the terms and conditions and privacy policy
-              </Label>
+            <div className="flex justify-between pt-6 border-t">
+                <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>Previous</Button>
+                {currentStep < 4 ? (
+                    <Button onClick={nextStep} className="bg-blue-600 hover:bg-blue-700">Next</Button>
+                ) : (
+                    <Button onClick={handleSubmit} disabled={!formData.agreeToTerms || isSubmitting} className="bg-blue-600 hover:bg-blue-700">
+                    {isSubmitting ? <><LoadingSpinner className="mr-2" size="sm" />Booking...</> : "Confirm Booking"}
+                    </Button>
+                )}
             </div>
-          </div>
+        </>
         )}
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6 border-t">
-          <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-            Previous
-          </Button>
-
-          {currentStep < 4 ? (
-            <Button onClick={nextStep} className="bg-blue-600 hover:bg-blue-700">
-              Next
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!formData.agreeToTerms || isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {isSubmitting ? (
-                <>
-                  <LoadingSpinner className="mr-2" size="sm" />
-                  Booking...
-                </>
-              ) : (
-                "Confirm Booking"
-              )}
-            </Button>
-          )}
-        </div>
       </DialogContent>
     </Dialog>
   )

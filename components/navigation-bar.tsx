@@ -12,6 +12,12 @@ export function NavigationBar() {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault()
     
+    // If on a different page, navigate to home first
+    if (window.location.pathname !== '/') {
+        window.location.href = `/${href}`;
+        return;
+    }
+
     const element = document.querySelector(href) as HTMLElement
     if (element) {
       const elementTop = element.offsetTop
@@ -30,23 +36,28 @@ export function NavigationBar() {
     <nav className="bg-white shadow-md border-b dark:bg-gray-900 dark:border-gray-800">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2">
             <img
               src="/logo.png"
               alt="AWRI Logo"
               className="h-12 w-20 object-contain transition-transform duration-300 hover:scale-110 hover:rotate-0"
             />
             <span className="text-xl font-bold text-gray-800 dark:text-gray-200">AWRI (Animal Wellness Research Institute)</span>
-          </div>
+          </Link>
 
           <div className="hidden md:flex items-center space-x-8">
-            <a
-              href="#home"
-              onClick={(e) => handleNavClick(e, "#home")}
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
+            <Link
+              href="/"
+              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
             >
               Home
-            </a>
+            </Link>
+            <Link
+              href="/track-booking"
+              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
+            >
+              Track Booking
+            </Link>
             <a
               href="#services"
               onClick={(e) => handleNavClick(e, "#services")}
@@ -54,12 +65,6 @@ export function NavigationBar() {
             >
               Workflow
             </a>
-        {/*     <Link
-              href="#about"
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
-            >
-              About
-            </Link> */}
             <a
               href="#testimonials"
               onClick={(e) => handleNavClick(e, "#testimonials")}

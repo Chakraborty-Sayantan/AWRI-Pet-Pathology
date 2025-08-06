@@ -49,12 +49,12 @@ export function StickyHoursBanner() {
 
       {/* Desktop View - Full Information */}
       <div className="hidden md:block py-2 px-4">
-        <div className="container mx-auto flex items-center justify-center gap-4 text-sm">
-          <Clock className="h-4 w-4" />
-          <span className="font-medium">Operating Hours:</span>
+      <div className="container mx-auto flex items-center justify-center gap-4 text-sm">
+        <Clock className="h-4 w-4" />
+        <span className="font-medium">Operating Hours:</span>
           <span>Mon-Fri: 7:00 AM - 8:00 PM | Sat: 8:00 AM - 6:00 PM | Sun: 9:00 AM - 4:00 PM</span>
-          <Phone className="h-4 w-4"/>
-          <span className="font-medium">Phone Number:</span>
+        <Phone className="h-4 w-4"/>
+        <span className="font-medium">Phone Number:</span>
           <span>+91 9163522664</span>
         </div>
       </div>

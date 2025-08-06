@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,32 +24,48 @@ export function ContactForm() {
     newsletter: false,
   })
 
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    // Send data to the backend API
+    try {
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Submission failed:", errorData);
+        alert(`Submission failed: ${errorData.errors.map((e: any) => e.msg).join(', ')}`);
+        setIsSubmitting(false);
+        return;
+      }
 
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false)
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        service: "",
-        message: "",
-        newsletter: false,
-      })
-    }, 3000)
-  }
+      setIsSubmitted(true);
 
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+      // Reset form after a delay
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+            name: "", email: "", phone: "", service: "", message: "", newsletter: false,
+        });
+      }, 3000);
+
+    } catch (error) {
+      console.error("An error occurred:", error);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (isSubmitted) {
@@ -86,154 +101,82 @@ export function ContactForm() {
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div className="space-y-8">
-            <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="bg-blue-100 p-3 rounded-full">
-                    <MapPin className="h-6 w-6 text-blue-600" />
-                  </div>
+                  <div className="bg-blue-100 p-3 rounded-full"><MapPin className="h-6 w-6 text-blue-600" /></div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Address</h4>
-                    <p className="text-gray-600">
-                      123 Medical Center 
-                      <br />
-                      Kolkata, WB 712001
-                    </p>
+                    <p className="text-gray-600">123 Medical Center <br /> Kolkata, WB 712001</p>
                   </div>
                 </div>
-
                 <div className="flex items-start gap-4">
-                  <div className="bg-green-100 p-3 rounded-full">
-                    <Phone className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Phone</h4>
-                    <p className="text-gray-600">+91 Phone Number</p>
-                  </div>
+                    <div className="bg-green-100 p-3 rounded-full"><Phone className="h-6 w-6 text-green-600" /></div>
+                    <div>
+                        <h4 className="font-semibold text-gray-900">Phone</h4>
+                        <p className="text-gray-600">+91 Phone Number</p>
+                    </div>
                 </div>
-
                 <div className="flex items-start gap-4">
-                  <div className="bg-purple-100 p-3 rounded-full">
-                    <Mail className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Email</h4>
-                    <p className="text-gray-600">mail@email.com</p>
-                  </div>
+                    <div className="bg-purple-100 p-3 rounded-full"><Mail className="h-6 w-6 text-purple-600" /></div>
+                    <div>
+                        <h4 className="font-semibold text-gray-900">Email</h4>
+                        <p className="text-gray-600">mail@email.com</p>
+                    </div>
                 </div>
-
                 <div className="flex items-start gap-4">
-                  <div className="bg-orange-100 p-3 rounded-full">
-                    <Clock className="h-6 w-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Hours</h4>
-                    <p className="text-gray-600">
-                      Mon-Fri: 7:00 AM - 8:00 PM
-                      <br />
-                      Sat: 8:00 AM - 6:00 PM
-                      <br />
-                      Sun: 9:00 AM - 4:00 PM
-                    </p>
-                  </div>
+                    <div className="bg-orange-100 p-3 rounded-full"><Clock className="h-6 w-6 text-orange-600" /></div>
+                    <div>
+                        <h4 className="font-semibold text-gray-900">Hours</h4>
+                        <p className="text-gray-600">Mon-Fri: 7:00 AM - 8:00 PM<br/>Sat: 8:00 AM - 6:00 PM<br/>Sun: 9:00 AM - 4:00 PM</p>
+                    </div>
                 </div>
               </div>
-            </div>
           </div>
 
           {/* Contact Form */}
           <Card>
-            <CardHeader>
-              <CardTitle>Send us a Message</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Send us a Message</CardTitle></CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
-                      required
-                      placeholder="Enter your full name"
-                    />
+                    <Input id="name" value={formData.name} onChange={(e) => handleInputChange("name", e.target.value)} required placeholder="Enter your full name" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
-                      required
-                      placeholder="Enter your email"
-                    />
+                    <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} required placeholder="Enter your email" />
                   </div>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange("phone", e.target.value)}
-                      placeholder="Enter your phone number"
-                    />
+                    <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} placeholder="Enter your phone number" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="service">Service Interest</Label>
                     <Select onValueChange={(value) => handleInputChange("service", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a service" />
-                      </SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Select a service" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="blood-tests">Blood Tests</SelectItem>
                         <SelectItem value="urine-analysis">Urine Analysis</SelectItem>
-                        <SelectItem value="imaging">Imaging Services</SelectItem>
                         <SelectItem value="veterinary">Veterinary Tests</SelectItem>
                         <SelectItem value="home-collection">Home Collection</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="message">Message *</Label>
-                  <Textarea
-                    id="message"
-                    value={formData.message}
-                    onChange={(e) => handleInputChange("message", e.target.value)}
-                    required
-                    placeholder="Tell us how we can help you..."
-                    rows={4}
-                  />
+                  <Textarea id="message" value={formData.message} onChange={(e) => handleInputChange("message", e.target.value)} required placeholder="Tell us how we can help..." rows={4} />
                 </div>
-
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="newsletter"
-                    checked={formData.newsletter}
-                    onCheckedChange={(checked) => handleInputChange("newsletter", checked as boolean)}
-                  />
-                  <Label htmlFor="newsletter" className="text-sm">
-                    Subscribe to our newsletter for health tips and updates
-                  </Label>
+                  <Checkbox id="newsletter" checked={formData.newsletter} onCheckedChange={(checked) => handleInputChange("newsletter", !!checked)} />
+                  <Label htmlFor="newsletter" className="text-sm">Subscribe to our newsletter</Label>
                 </div>
-
                 <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <LoadingSpinner className="mr-2" />
-                      Sending Message...
-                    </>
-                  ) : (
-                    "Send Message"
-                  )}
+                  {isSubmitting ? <><LoadingSpinner className="mr-2" />Sending...</> : "Send Message"}
                 </Button>
               </form>
             </CardContent>
