@@ -25,11 +25,11 @@ export function Sidebar({ isCollapsed }: { isCollapsed: boolean }) {
   return (
     <TooltipProvider delayDuration={0}>
       <aside className={cn(
-        "hidden md:flex flex-col bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-all duration-300 ease-in-out",
+        "hidden md:flex flex-col bg-white border-r transition-all duration-300 ease-in-out",
         "fixed h-full z-10", 
         isCollapsed ? "w-20" : "w-64"
       )}>
-        <div className="flex items-center justify-center h-20 border-b dark:border-gray-700">
+        <div className="flex items-center justify-center h-20 border-b">
             <div className="flex items-center justify-center h-16 w-16 rounded-full bg-white shadow mr-2">
               <img
               src="/logo.png"
@@ -39,7 +39,7 @@ export function Sidebar({ isCollapsed }: { isCollapsed: boolean }) {
             </div>
             
           <span className={cn(
-            "ml-2 text-xl font-bold text-gray-800 dark:text-white whitespace-nowrap overflow-hidden transition-all duration-200",
+            "ml-2 text-xl font-bold text-gray-800 whitespace-nowrap overflow-hidden transition-all duration-200",
             isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
           )}>AWRI Admin</span>
         </div>
@@ -50,9 +50,9 @@ export function Sidebar({ isCollapsed }: { isCollapsed: boolean }) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center p-3 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors",
+                    "flex items-center p-3 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors",
                     isCollapsed && "justify-center",
-                    pathname === item.href && "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-semibold"
+                    pathname === item.href && "bg-blue-100 text-blue-600 font-semibold"
                   )}
                 >
                   <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -70,11 +70,11 @@ export function Sidebar({ isCollapsed }: { isCollapsed: boolean }) {
             </Tooltip>
           ))}
         </nav>
-        <div className="p-2 border-t dark:border-gray-700">
+        <div className="p-2 border-t text-gray-800">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" className={cn("w-full p-3", isCollapsed ? "justify-center" : "justify-start")} onClick={handleLogout}>
-                    <LogOut className="h-5 w-5 flex-shrink-0" />
+                    <LogOut className="h-5 w-5 flex-shrink-0 text-gray-500" />
                     <span className={cn("ml-3 whitespace-nowrap overflow-hidden transition-all duration-200", isCollapsed && "w-0 opacity-0")}>Logout</span>
                 </Button>
               </TooltipTrigger>

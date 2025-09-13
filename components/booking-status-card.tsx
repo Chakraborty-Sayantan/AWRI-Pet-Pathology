@@ -14,7 +14,7 @@ interface Booking {
 export function BookingStatusCard({ booking }: { booking: Booking }) {
   return (
     <Card className="w-full shadow-md hover:shadow-xl transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-t-lg p-4">
+      <CardHeader className="flex flex-row items-center justify-between bg-gray-50 rounded-t-lg p-4">
         <CardTitle className="text-lg">Booking ID: #{booking.id}</CardTitle>
         <Badge>Pending</Badge>
       </CardHeader>
@@ -48,8 +48,8 @@ export function BookingStatusCard({ booking }: { booking: Booking }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="bg-gray-50 dark:bg-gray-800 rounded-b-lg p-4 flex justify-end items-center">
-        <div className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-white">
+      <CardFooter className="bg-gray-50 rounded-b-lg p-4 flex justify-end items-center">
+        <div className="flex items-center gap-2 text-lg font-bold text-gray-800">
             <IndianRupee className="h-5 w-5" />
             <span>{parseFloat(booking.total_price).toFixed(2)}</span>
         </div>

@@ -13,24 +13,24 @@ interface Booking {
 
 export function RecentBookings({ bookings }: { bookings: Booking[] }) {
   return (
-    <Card>
+    <Card className="bg-gray-50 text-gray-800">
       <CardHeader>
         <CardTitle>Recent Bookings</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 text-gray-800">
         {bookings.map((booking) => (
           <div key={booking.id} className="flex items-center">
-            <Avatar className="h-9 w-9">
+            <Avatar className="h-9 w-9 text-gray-200">
               <AvatarFallback>
                 {booking.full_name ? booking.full_name.charAt(0).toUpperCase() : 'U'}
               </AvatarFallback>
             </Avatar>
-            <div className="ml-4 space-y-1">
+            <div className="ml-4 space-y-1 text-gray-800">
               <p className="text-sm font-medium leading-none">{booking.full_name || "N/A"}</p>
-              <p className="text-sm text-muted-foreground">{new Date(booking.created_at).toLocaleDateString()}</p>
+              <p className="text-sm text-muted-background">{new Date(booking.created_at).toLocaleDateString()}</p>
             </div>
             <div className="ml-auto font-medium">
-                <Badge variant="outline">₹{parseFloat(booking.total_price).toFixed(2)}</Badge>
+                <Badge variant="outline" className="text-gray-900">₹{parseFloat(booking.total_price).toFixed(2)}</Badge>
             </div>
           </div>
         ))}

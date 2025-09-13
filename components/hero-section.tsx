@@ -42,7 +42,7 @@ export function HeroSection() {
                 <Button
                 onClick={() => setIsBookingModalOpen(true)} 
                 size="lg" 
-                className="bg-blue-600 hover:bg-blue-700">
+                className="bg-blue-600 hover:bg-blue-700 text-white">
                   Schedule Test Now
                 </Button>
                 {/* <Button

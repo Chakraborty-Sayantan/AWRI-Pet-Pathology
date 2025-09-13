@@ -33,7 +33,7 @@ export function FooterSection() {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center justify-center rounded-full bg-neutral-100 dark:bg-gray-800 h-20 w-20 mr-2">
+              <span className="inline-flex items-center justify-center rounded-full bg-neutral-100 h-20 w-20 mr-2">
                 <img
                   src="/logo.png"
                   alt="AWRI Logo"

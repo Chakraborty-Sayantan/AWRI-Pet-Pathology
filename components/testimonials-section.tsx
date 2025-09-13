@@ -106,13 +106,13 @@ export function TestimonialsSection() {
 
   if (isLoading) {
     return (
-      <section id="testimonials" className="py-20 bg-white dark:bg-gray-900">
+      <section id="testimonials" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               What Our Pet Parents Say
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-xl text-gray-600">
               Trusted by hundreds of pet parents for accurate diagnostics and exceptional care.
             </p>
           </div>
@@ -127,14 +127,14 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section id="testimonials" className="py-20 bg-white dark:bg-gray-900">
+    <section id="testimonials" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <FadeInSection>
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               What Our Pet Parents Say
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-xl text-gray-600">
               Trusted by hundreds of pet parents for accurate diagnostics and exceptional care.
             </p>
           </div>
@@ -143,7 +143,7 @@ export function TestimonialsSection() {
         <div className="max-w-4xl mx-auto">
           {/* Main Testimonial Display */}
           <div className="relative">
-            <Card className="p-8 hover:shadow-xl transition-all duration-500 bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 border-2 border-blue-100 dark:border-gray-700">
+            <Card className="p-8 hover:shadow-xl transition-all duration-500 bg-gradient-to-br from-blue-50 to-white border-2 border-blue-100">
               <CardContent className="space-y-6">
                 {/* Rating Stars */}
                 <div className="flex items-center justify-center gap-1">
@@ -153,13 +153,13 @@ export function TestimonialsSection() {
                 </div>
 
                 {/* Testimonial Text */}
-                <blockquote className="text-lg md:text-xl text-gray-700 dark:text-gray-300 text-center leading-relaxed italic">
+                <blockquote className="text-lg md:text-xl text-gray-700 text-center leading-relaxed italic">
                   "{testimonials[currentIndex].comment}"
                 </blockquote>
 
                 {/* Pet Info */}
                 <div className="text-center">
-                  <div className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full text-sm font-medium">
+                  <div className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
                     Pet: {testimonials[currentIndex].petName} ({testimonials[currentIndex].petType})
                   </div>
                 </div>
@@ -171,13 +171,13 @@ export function TestimonialsSection() {
                     alt={testimonials[currentIndex].name}
                     width={60}
                     height={60}
-                    className="rounded-full border-4 border-blue-200 dark:border-blue-800"
+                    className="rounded-full border-4 border-blue-200"
                   />
                   <div className="text-center">
-                    <div className="font-bold text-xl text-gray-900 dark:text-white">
+                    <div className="font-bold text-xl text-gray-900">
                       {testimonials[currentIndex].name}
                     </div>
-                    <div className="text-blue-600 dark:text-blue-400 font-medium">
+                    <div className="text-blue-600 font-medium">
                       {testimonials[currentIndex].role}
                     </div>
                   </div>
@@ -190,18 +190,18 @@ export function TestimonialsSection() {
               variant="outline"
               size="icon"
               onClick={prevTestimonial}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 border-2 border-blue-200 dark:border-gray-600 shadow-lg"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white hover:bg-blue-50 border-2 border-blue-200 shadow-lg"
             >
-              <ChevronLeft className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <ChevronLeft className="h-5 w-5 text-blue-600" />
             </Button>
 
             <Button
               variant="outline"
               size="icon"
               onClick={nextTestimonial}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 border-2 border-blue-200 dark:border-gray-600 shadow-lg"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white hover:bg-blue-50 border-2 border-blue-200 shadow-lg"
             >
-              <ChevronRight className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <ChevronRight className="h-5 w-5 text-blue-600" />
             </Button>
           </div>
 
@@ -213,8 +213,8 @@ export function TestimonialsSection() {
                 onClick={() => goToTestimonial(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index === currentIndex
-                    ? "bg-blue-600 dark:bg-blue-400 scale-125"
-                    : "bg-gray-300 dark:bg-gray-600 hover:bg-blue-300 dark:hover:bg-blue-500"
+                    ? "bg-blue-600 scale-125"
+                    : "bg-gray-300 hover:bg-blue-300"
                 }`}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
@@ -223,13 +223,13 @@ export function TestimonialsSection() {
 
           {/* Progress Bar */}
           <div className="mt-6 max-w-md mx-auto">
-            <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+            <div className="bg-gray-200 rounded-full h-1">
               <div
-                className="bg-blue-600 dark:bg-blue-400 h-1 rounded-full transition-all duration-300 ease-out"
+                className="bg-blue-600 h-1 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${((currentIndex + 1) / testimonials.length) * 100}%` }}
               />
             </div>
-            <div className="text-center mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-center mt-2 text-sm text-gray-500">
               {currentIndex + 1} of {testimonials.length}
             </div>
           </div>

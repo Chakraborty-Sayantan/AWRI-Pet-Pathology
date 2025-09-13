@@ -18,7 +18,7 @@ export function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
   }
 
   return (
-    <header className="flex items-center justify-between h-20 px-4 md:px-8 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+    <header className="flex items-center justify-between h-20 px-4 md:px-8 bg-white border-b">
       <div className="flex items-center gap-4">
         {/* --- SIDEBAR TOGGLE BUTTON --- */}
         <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hidden md:flex">

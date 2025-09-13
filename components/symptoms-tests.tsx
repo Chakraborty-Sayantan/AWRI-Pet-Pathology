@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BookingModal } from "./booking-modal"
 import { FadeInSection } from "./fade-in-section"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Symptom {
   id: string
@@ -17,6 +18,7 @@ interface TestRecommendation {
   name: string
   code: string
   price: number
+  category: string
 }
 
 const symptoms: Symptom[] = [
@@ -30,7 +32,7 @@ const symptoms: Symptom[] = [
   { id: "blood-fecal", name: "Blood in Fecal", selected: false },
 ]
 
-const testRecommendations: Record<string, TestRecommendation[]> = {
+const testRecommendations: Record<string, Omit<TestRecommendation, "category">[]> = {
   fatigue: [
     { id: "cbc", name: "Complete Blood Count", code: "AWRI 02", price: 400 },
     { id: "thyroid", name: "Thyroid Profile", code: "AWRI 108", price: 400 },
@@ -75,6 +77,7 @@ const testRecommendations: Record<string, TestRecommendation[]> = {
 
 export function SymptomsTestSection() {
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([])
+  const [selectedTests, setSelectedTests] = useState<TestRecommendation[]>([])
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
 
   const toggleSymptom = (symptomId: string) => {
@@ -83,44 +86,58 @@ export function SymptomsTestSection() {
     )
   }
 
+  const handleTestSelection = (test: TestRecommendation) => {
+    setSelectedTests((prev) =>
+      prev.some((t) => t.id === test.id)
+        ? prev.filter((t) => t.id !== test.id)
+        : [...prev, test],
+    )
+  }
+
   const getRecommendedTests = () => {
     const allTests = new Map<string, TestRecommendation>()
 
     selectedSymptoms.forEach((symptomId) => {
-      const tests = testRecommendations[symptomId] || []
-      tests.forEach((test) => {
-        allTests.set(test.id, test)
-      })
-    })
+        const tests = testRecommendations[symptomId] || [];
+        tests.forEach((test) => {
+            const category = Object.keys(testRecommendations).find(key => testRecommendations[key].some(t => t.id === test.id)) || "Unknown";
+            allTests.set(test.id, { ...test, category });
+        });
+    });
 
-    return Array.from(allTests.values())
-  }
+    return Array.from(allTests.values());
+}
+
 
   const recommendedTests = getRecommendedTests()
 
+  const openBookingModal = () => {
+    setIsBookingModalOpen(true)
+  }
+
   return (
     <FadeInSection>
-      <section className="py-20 bg-gray-50 dark:bg-gray-800">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               Symptoms Related Test Recommendation
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-xl text-gray-600">
               Use our Dynamic table to find what test is recommended for your Pet's Symptoms
             </p>
           </div>
           <div className="max-w-4xl mx-auto mb-10">
-            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-400 p-4 rounded">
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded">
               <span className="font-semibold">Disclaimer:</span> This is an AI generated information and should not be considered as absolute. All Symptoms should be consulted with a practising veterinary doctor before or after the test.
             </div>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* Symptoms Section */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg">
+            <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="text-center mb-6">
-                <div className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-6 py-3 rounded-full font-semibold text-lg">
+                <div className="inline-block bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-semibold text-lg">
                   Symptoms
                 </div>
               </div>
@@ -145,9 +162,9 @@ export function SymptomsTestSection() {
             </div>
 
             {/* Test Recommendations Section */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-lg">
+            <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="text-center mb-6">
-                <div className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-6 py-3 rounded-full font-semibold text-lg">
+                <div className="inline-block bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-semibold text-lg">
                   Test Recommendations
                 </div>
               </div>
@@ -157,13 +174,24 @@ export function SymptomsTestSection() {
                   recommendedTests.map((test) => (
                     <Card
                       key={test.id}
-                      className="bg-blue-500 text-white border-blue-500 hover:bg-blue-600 transition-all duration-300 hover:scale-105"
+                      className={`cursor-pointer transition-all duration-300 hover:scale-105 ${
+                        selectedTests.some((t) => t.id === test.id)
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50"
+                      }`}
+                      onClick={() => handleTestSelection(test)}
                     >
                       <CardContent className="p-4">
                         <div className="flex justify-between items-center">
-                          <div>
-                            <h4 className="font-semibold">{test.name}</h4>
-                            <p className="text-sm opacity-90">{test.code}</p>
+                          <div className="flex items-center space-x-3">
+                            <Checkbox
+                              checked={selectedTests.some((t) => t.id === test.id)}
+                              onCheckedChange={() => handleTestSelection(test)}
+                            />
+                            <div>
+                                <h4 className="font-semibold">{test.name}</h4>
+                                <p className="text-sm opacity-90">{test.code}</p>
+                            </div>
                           </div>
                           <div className="text-right">
                             <span className="font-bold">₹{test.price}</span>
@@ -173,7 +201,7 @@ export function SymptomsTestSection() {
                     </Card>
                   ))
                 ) : (
-                  <div className="text-center text-gray-500 dark:text-gray-400 py-12">
+                  <div className="text-center text-gray-500 py-12">
                     <p className="text-lg">Select symptoms to see test recommendations</p>
                   </div>
                 )}
@@ -184,7 +212,7 @@ export function SymptomsTestSection() {
           {/* Book Test Button */}
           <div className="text-center mt-12">
             <Button
-              onClick={() => setIsBookingModalOpen(true)}
+              onClick={openBookingModal}
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-full transition-all duration-300 hover:scale-105"
             >
@@ -193,7 +221,11 @@ export function SymptomsTestSection() {
           </div>
         </div>
 
-        <BookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+          preselectedTests={selectedTests}
+        />
       </section>
     </FadeInSection>
   )

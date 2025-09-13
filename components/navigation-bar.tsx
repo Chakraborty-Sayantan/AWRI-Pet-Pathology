@@ -33,7 +33,7 @@ export function NavigationBar() {
   }
 
   return (
-    <nav className="bg-white shadow-md border-b dark:bg-gray-900 dark:border-gray-800">
+    <nav className="bg-white shadow-md border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center space-x-2">
@@ -42,40 +42,40 @@ export function NavigationBar() {
               alt="AWRI Logo"
               className="h-12 w-20 object-contain transition-transform duration-300 hover:scale-110 hover:rotate-0"
             />
-            <span className="text-xl font-bold text-gray-800 dark:text-gray-200">AWRI (Animal Wellness Research Institute)</span>
+            <span className="text-xl font-bold text-gray-800">Pet Pathology Lab (Animal Wellness Research Institute)</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
+              className="text-gray-700 hover:text-blue-600 font-medium"
             >
               Home
             </Link>
             <Link
               href="/track-booking"
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400"
+              className="text-gray-700 hover:text-blue-600 font-medium"
             >
               Track Booking
             </Link>
             <a
               href="#services"
               onClick={(e) => handleNavClick(e, "#services")}
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
+              className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer"
             >
               Workflow
             </a>
             <a
               href="#testimonials"
               onClick={(e) => handleNavClick(e, "#testimonials")}
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
+              className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer"
             >
               Testimonials
             </a>
             <a
               href="#contact"
               onClick={(e) => handleNavClick(e, "#contact")}
-              className="text-gray-700 hover:text-blue-600 font-medium dark:text-gray-300 dark:hover:text-blue-400 cursor-pointer"
+              className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer"
             >
               Contact
             </a>

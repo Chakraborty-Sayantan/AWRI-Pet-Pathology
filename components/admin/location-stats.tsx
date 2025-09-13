@@ -4,22 +4,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'
 
 interface LocationStat {
-    city: string;
-    count: string; // The count will be a string from the DB query
+    locality: string;
+    count: string;
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1943'];
 
 export function LocationStats({ data }: { data: LocationStat[] }) {
     const chartData = data.map(item => ({
-        name: item.city,
+        name: item.locality,
         value: parseInt(item.count, 10)
     }));
 
     return (
-        <Card>
+        <Card className="bg-gray-50">
             <CardHeader>
-                <CardTitle>Bookings by City</CardTitle>
+                <CardTitle className="text-gray-800">Bookings by Locality</CardTitle>
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>

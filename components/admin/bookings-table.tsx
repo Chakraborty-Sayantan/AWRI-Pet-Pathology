@@ -208,7 +208,7 @@ export function BookingsTable() {
                                     </div>
                                 </div>
                                 <AccordionContent>
-                                    <div className="bg-gray-50 dark:bg-gray-800 px-6 py-4">
+                                    <div className="px-6 py-4">
                                         <h4 className="font-semibold mb-2">Booked Tests:</h4>
                                         <Table>
                                             <TableHeader>

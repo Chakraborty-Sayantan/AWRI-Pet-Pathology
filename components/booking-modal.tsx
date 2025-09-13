@@ -16,16 +16,17 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { CalendarIcon, CheckCircle, TestTube } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { LoadingSpinner } from "./loading-spinner"
 
 
 export interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  preselectedTests?: { id: string; name: string; price: number; category: string }[];
 }
 
-export function BookingModal({ isOpen, onClose }: BookingModalProps) {
+export function BookingModal({ isOpen, onClose, preselectedTests = [] }: BookingModalProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -44,10 +45,24 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     specialInstructions: "",
     address: "",
     city: "",
+    locality: "",
     zipCode: "",
-    paymentMethod: "card",
+    paymentMethod: "cash",
     agreeToTerms: false,
+    discount: 0,
   })
+
+  useEffect(() => {
+    if (preselectedTests.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        selectedTests: preselectedTests,
+      }));
+      if (preselectedTests.length > 0) {
+        setTestAdded(true);
+      }
+    }
+  }, [preselectedTests, isOpen]);
 
   
   const [formErrors, setFormErrors] = useState({
@@ -56,10 +71,15 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     phone: "",
     address: "",
     city: "",
+    locality: "",
     zipCode: "",
+    timeSlot: "",
+    selectedDate: "",
+    discount: "",
   });
 
- const testCategories = {
+ const testCategories: Record<string, { id: string; name: string; price: number }[]> = {
+    "All Categories": [],
     "HEMATOLOGY & COAGULATION": [
       { id: "AWRI01", name: "HEMOGLOBIN; HB", price: 150 },
       { id: "AWRI02", name: "COMPLETE BLOOD COUNT; CBC", price: 400 },
@@ -228,43 +248,38 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     ],
   }
 
+  const allTests = Object.values(testCategories).flat();
+  testCategories["All Categories"] = allTests;
 
-  const [selectedCategory, setSelectedCategory] = useState("")
+
+  const [selectedCategory, setSelectedCategory] = useState("All Categories")
   const [selectedTest, setSelectedTest] = useState("")
+  const [testAdded, setTestAdded] = useState(false);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error for the field when user starts typing
     if (formErrors[field as keyof typeof formErrors]) {
         setFormErrors(prev => ({ ...prev, [field]: "" }));
     }
   }
 
-    // --- DYNAMIC TIME SLOTS ---
   const timeSlots = useMemo(() => {
     if (!selectedDate) return [];
     
-    const day = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+    const day = selectedDate.getDay();
     
-    if (day === 0) { // Sunday
+    if (day === 0) {
         return ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
-    } else if (day === 6) { // Saturday
+    } else if (day === 6) {
         return ["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"];
-    } else { // Weekdays (Mon-Fri)
+    } else {
         return ["7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"];
     }
   }, [selectedDate]);
 
     
     const validateStep1 = () => {
-      const errors = { 
-        fullName: "", 
-        email: "", 
-        phone: "", 
-        address: "", 
-        city: "", 
-        zipCode: "" 
-      };
+      const errors = { ...formErrors };
       let isValid = true;
       const strictEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       const indianPhoneRegex = /^[6-9]\d{9}$/;
@@ -295,39 +310,63 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     };
 
     const validateStep3 = () => {
-    const errors = { ...formErrors, address: "", city: "", zipCode: "" };
-    let isValid = true;
-    const indianZipRegex = /^\d{6}$/;
+        const errors = { ...formErrors };
+        let isValid = true;
+        const indianZipRegex = /^\d{6}$/;
+    
+        if (formData.appointmentType === 'home-collection') {
+            if (!formData.address.trim()) {
+                errors.address = "Street address is required for home collection.";
+                isValid = false;
+            }
+            if (!formData.city.trim()) {
+                errors.city = "City is required for home collection.";
+                isValid = false;
+            }
+            if (!formData.locality.trim()) {
+                errors.locality = "Locality is required for home collection.";
+                isValid = false;
+            }
+            if (!formData.zipCode.trim()) {
+                errors.zipCode = "ZIP code is required for home collection.";
+                isValid = false;
+            } else if (!indianZipRegex.test(formData.zipCode.trim())) {
+                errors.zipCode = "Please enter a valid 6-digit Indian ZIP code.";
+                isValid = false;
+            }
+        }
 
-    if (formData.appointmentType === 'home-collection') {
-        if (!formData.address.trim()) {
-            errors.address = "Street address is required for home collection.";
+        if (!selectedDate) {
+            errors.selectedDate = "Please select an appointment date.";
             isValid = false;
         }
-        if (!formData.city.trim()) {
-            errors.city = "City is required for home collection.";
+
+        if (!formData.timeSlot) {
+            errors.timeSlot = "Please select a time slot.";
             isValid = false;
         }
-        if (!formData.zipCode.trim()) {
-            errors.zipCode = "ZIP code is required for home collection.";
-            isValid = false;
-        } else if (!indianZipRegex.test(formData.zipCode.trim())) {
-            errors.zipCode = "Please enter a valid 6-digit Indian ZIP code.";
+    
+        setFormErrors(errors);
+        return isValid;
+      }
+
+      const validateStep4 = () => {
+        const errors = { ...formErrors };
+        let isValid = true;
+        if (formData.discount === 0) {
+            errors.discount = "Please select a discount option.";
             isValid = false;
         }
-    }
-    setFormErrors(errors);
-    return isValid;
-  }
+        setFormErrors(errors);
+        return isValid;
+      }
   
     const nextStep = () => {
-      if (currentStep === 1) {
-          if (!validateStep1()) {
-              return;
-          }
-      } if (currentStep === 3) {
-        if (!validateStep3()) return;
-    }
+      if (currentStep === 1 && !validateStep1()) return;
+      if (currentStep === 2 && !testAdded) return;
+      if (currentStep === 3 && !validateStep3()) return;
+      if (currentStep === 4 && !validateStep4()) return;
+      
       setCurrentStep((prev) => Math.min(prev + 1, 4));
     };
   
@@ -336,32 +375,39 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
   const handleAddTest = () => {
     if (selectedTest && selectedCategory) {
-      const categoryTests = testCategories[selectedCategory as keyof typeof testCategories]
-      const test = categoryTests.find((t) => t.id === selectedTest)
+      const categoryTests = selectedCategory === "All Categories" ? allTests : testCategories[selectedCategory as keyof typeof testCategories];
+      const test = categoryTests.find((t) => t.id === selectedTest);
       if (test && !formData.selectedTests.find((t) => t.id === test.id)) {
         setFormData((prev) => ({
           ...prev,
           selectedTests: [...prev.selectedTests, { ...test, category: selectedCategory }],
-        }))
+        }));
+        setTestAdded(true);
       }
-      setSelectedTest("")
+      setSelectedTest("");
     }
   }
 
   const handleRemoveTest = (testId: string) => {
+    const updatedTests = formData.selectedTests.filter((test) => test.id !== testId);
     setFormData((prev) => ({
       ...prev,
-      selectedTests: prev.selectedTests.filter((test) => test.id !== testId),
-    }))
+      selectedTests: updatedTests,
+    }));
+    if (updatedTests.length === 0) {
+        setTestAdded(false);
+    }
   }
 
   const getTotalPrice = () => {
     const testsTotal = formData.selectedTests.reduce((total, test) => total + test.price, 0)
+    const discountedTotal = testsTotal * (1 - formData.discount);
     const collectionFee = formData.appointmentType === "home-collection" ? 200 : 0
-    return testsTotal + collectionFee
+    return discountedTotal + collectionFee
   }
   
   const handleSubmit = async () => {
+    if(!validateStep4()) return;
     setIsSubmitting(true);
 
     try {
@@ -372,6 +418,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
           ...formData,
           phone: "+91" + formData.phone, 
           appointmentDate: selectedDate ? format(selectedDate, "yyyy-MM-dd") : null,
+          total_price: getTotalPrice()
         }),
       });
 
@@ -382,11 +429,9 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         return;
       }
 
-      // Capture the booking ID from the response
       const successData = await response.json();
        router.push(`/booking-confirmed?id=${successData.bookingId}&name=${encodeURIComponent(formData.fullName)}`);
 
-      // Reset form after a delay
       setTimeout(() => {
         setIsBooked(false);
         setConfirmedBookingId(null);
@@ -395,7 +440,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
       setFormData({
         fullName: "", email: "", phone: "", selectedTests: [], testPackage: "",
         appointmentType: "home-collection", timeSlot: "", specialInstructions: "",
-        address: "", city: "", zipCode: "", paymentMethod: "card", agreeToTerms: false,
+        address: "", city: "", locality: "", zipCode: "", paymentMethod: "cash", agreeToTerms: false, discount: 0
       });
       setSelectedDate(undefined);
       setCurrentStep(1);
@@ -427,7 +472,6 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         <p className="text-gray-600 mb-4">
             Your appointment has been scheduled successfully. You can now track your booking. 
         </p>
-        {/* --- Display the real booking ID */}
         {confirmedBookingId && (
             <Badge className="bg-blue-100 text-blue-800">
                 Booking ID: #{confirmedBookingId}
@@ -460,7 +504,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
             </div>
 
             {currentStep === 1 && (
-              <div className="space-y-6">
+              <div className="space-y-6 ">
                 <h3 className="text-lg font-semibold">Personal Information</h3>
                  <div className="grid md:grid-cols-2 gap-4">
                   <div className="md:col-span-2 space-y-2">
@@ -509,14 +553,14 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     <Select onValueChange={setSelectedTest} value={selectedTest} disabled={!selectedCategory}>
                     <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
                     <SelectContent>
-                        {selectedCategory && testCategories[selectedCategory as keyof typeof testCategories].map((test) => (
+                        {(selectedCategory === "All Categories" ? allTests : testCategories[selectedCategory as keyof typeof testCategories]).map((test) => (
                         <SelectItem key={test.id} value={test.id}>{test.name} - ₹{test.price}</SelectItem>
                         ))}
                     </SelectContent>
                     </Select>
                 </div>
                 </div>
-                <Button onClick={handleAddTest} disabled={!selectedTest || !selectedCategory} className="w-full md:w-auto">Add Test</Button>
+                <Button onClick={handleAddTest} disabled={!selectedTest} className="w-full md:w-auto">Add Test</Button>
                 {formData.selectedTests.length > 0 && (
                 <Card>
                     <CardContent className="p-4">
@@ -537,7 +581,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     </div>
                     <div className="border-t pt-2 mt-3 flex justify-between font-semibold">
                         <span>Total:</span>
-                        <span>₹{getTotalPrice()}</span>
+                        <span>₹{formData.selectedTests.reduce((total, test) => total + test.price, 0)}</span>
                     </div>
                     </CardContent>
                 </Card>
@@ -545,12 +589,12 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
             </div>
             )}
 
-                        {currentStep === 3 && (
+            {currentStep === 3 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Appointment Details</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Select Date</Label>
+                    <Label>Select Date *</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !selectedDate && "text-muted-foreground")}>
@@ -562,15 +606,17 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         <Calendar selected={selectedDate} onSelect={setSelectedDate} disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))} />
                       </PopoverContent>
                     </Popover>
+                    {formErrors.selectedDate && <p className="text-sm text-red-500 mt-1">{formErrors.selectedDate}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Time Slot</Label>
+                    <Label>Time Slot *</Label>
                     <Select onValueChange={(value) => handleInputChange("timeSlot", value)} disabled={!selectedDate}>
                       <SelectTrigger><SelectValue placeholder="Select a time" /></SelectTrigger>
                       <SelectContent>
                         {timeSlots.map((time) => (<SelectItem key={time} value={time}>{time}</SelectItem>))}
                       </SelectContent>
                     </Select>
+                    {formErrors.timeSlot && <p className="text-sm text-red-500 mt-1">{formErrors.timeSlot}</p>}
                   </div>
                 </div>
                 {formData.appointmentType === "home-collection" && (
@@ -581,11 +627,16 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         <Input id="address" value={formData.address} onChange={(e) => handleInputChange("address", e.target.value)} />
                         {formErrors.address && <p className="text-sm text-red-500 mt-1">{formErrors.address}</p>}
                     </div>
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="city">City *</Label>
                         <Input id="city" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} />
                         {formErrors.city && <p className="text-sm text-red-500 mt-1">{formErrors.city}</p>}
+                      </div>
+                       <div className="space-y-2">
+                        <Label htmlFor="locality">Locality *</Label>
+                        <Input id="locality" value={formData.locality} onChange={(e) => handleInputChange("locality", e.target.value)} />
+                        {formErrors.locality && <p className="text-sm text-red-500 mt-1">{formErrors.locality}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="zipCode">ZIP Code *</Label>
@@ -604,6 +655,23 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
             {currentStep === 4 && (
             <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Payment & Confirmation</h3>
+
+                <div className="space-y-4">
+                    <Label>Discount *</Label>
+                    <RadioGroup onValueChange={(value) => handleInputChange("discount", parseFloat(value))}>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="0.2" id="dog-cat-discount" />
+                            <Label htmlFor="dog-cat-discount">For your Loved Dog/Cat - Flat 20% off*</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="0.3" id="indie-discount" />
+                            <Label htmlFor="indie-discount">For your Loved Indie Dog - Flat 30% off*</Label>
+                        </div>
+                    </RadioGroup>
+                    <p className="text-xs text-gray-500">Because your pet deserves the best care without breaking the Bank.</p>
+                    {formErrors.discount && <p className="text-sm text-red-500 mt-1">{formErrors.discount}</p>}
+                </div>
+
                 <Card>
                 <CardContent className="p-4">
                     <h4 className="font-semibold mb-3">Booking Summary</h4>
@@ -614,9 +682,11 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     <div className="flex justify-between"><span>Tests:</span><span>{formData.selectedTests.length}</span></div>
                     <div className="flex justify-between"><span>Date:</span><span>{selectedDate ? format(selectedDate, "PPP") : "Not selected"}</span></div>
                     <div className="flex justify-between"><span>Time:</span><span>{formData.timeSlot || "Not selected"}</span></div>
+                    <div className="flex justify-between"><span>Subtotal:</span><span>₹{formData.selectedTests.reduce((total, test) => total + test.price, 0)}</span></div>
+                    <div className="flex justify-between text-green-600"><span>Discount:</span><span>-₹{(formData.selectedTests.reduce((total, test) => total + test.price, 0) * formData.discount).toFixed(2)}</span></div>
                     <div className="flex justify-between border-t pt-2 font-semibold">
                         <span>Total:</span>
-                        <span>₹{getTotalPrice()}</span>
+                        <span>₹{getTotalPrice().toFixed(2)}</span>
                     </div>
                     </div>
                 </CardContent>
@@ -626,9 +696,10 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 <RadioGroup value={formData.paymentMethod} onValueChange={(value) => handleInputChange("paymentMethod", value)}>
                     <div className="flex items-center space-x-2">
                     <RadioGroupItem value="cash" id="cash" />
-                    <Label htmlFor="cash">Cash on Collection</Label>
+                    <Label htmlFor="cash">Cash on Collection*</Label>
                     </div>
                 </RadioGroup>
+                 <p className="text-xs text-gray-500">*Collection charges as applicable</p>
                 </div>
                 <div className="flex items-center space-x-2">
                 <Checkbox id="terms" checked={formData.agreeToTerms} onCheckedChange={(checked) => handleInputChange("agreeToTerms", !!checked)} />
@@ -640,7 +711,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
             <div className="flex justify-between pt-6 border-t">
                 <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>Previous</Button>
                 {currentStep < 4 ? (
-                    <Button onClick={nextStep} className="bg-blue-600 hover:bg-blue-700">Next</Button>
+                    <Button onClick={nextStep} className="bg-blue-600 hover:bg-blue-700" disabled={currentStep === 2 && !testAdded}>Next</Button>
                 ) : (
                     <Button onClick={handleSubmit} disabled={!formData.agreeToTerms || isSubmitting} className="bg-blue-600 hover:bg-blue-700">
                     {isSubmitting ? <><LoadingSpinner className="mr-2" size="sm" />Booking...</> : "Confirm Booking"}

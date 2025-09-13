@@ -48,7 +48,7 @@ export function MobileNavigation() {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="p-2">
-            <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+            <Menu className="h-6 w-6 text-gray-700" />
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-[300px] sm:w-[400px]">
@@ -61,7 +61,7 @@ export function MobileNavigation() {
                   alt="AWRI Logo"
                   className="h-12 w-20 object-contain"
                 />
-                <span className="text-lg font-bold text-gray-800 dark:text-gray-200">AWRI</span>
+                <span className="text-lg font-bold text-gray-800">AWRI</span>
                 </Link>
               </div>
             </div>
@@ -74,7 +74,7 @@ export function MobileNavigation() {
                       key={item.name}
                       href={item.href}
                       onClick={() => setIsSheetOpen(false)}
-                      className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 cursor-pointer"
+                      className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer"
                     >
                       {item.name}
                     </Link>
@@ -83,7 +83,7 @@ export function MobileNavigation() {
                       key={item.name}
                       href={item.href}
                       onClick={(e) => handleNavClick(e, item.href)}
-                      className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 cursor-pointer"
+                      className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer"
                     >
                       {item.name}
                     </a>

@@ -50,12 +50,12 @@ export function WorkflowSection() {
             const IconComponent = step.icon
             return (
               <FadeInSection key={index} delay={index * 200}>
-                <Card className="text-center p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 group">
+                <Card className="bg-transparent text-center p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 group">
                   <CardContent className="space-y-4">
                     <div className={`${step.bgColor} w-16 h-16 rounded-full flex items-center justify-center mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
                       <IconComponent className={`h-8 w-8 ${step.iconColor} transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`} />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">{step.title}</h3>
+                    <h3 className="text-xl text-gray-900 font-semibold">{step.title}</h3>
                     <p className="text-gray-600">{step.description}</p>
                   </CardContent>
                 </Card>
