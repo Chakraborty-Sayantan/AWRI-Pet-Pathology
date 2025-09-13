@@ -22,6 +22,8 @@ const structureBookingsWithTests = (rows) => {
                 address: row.address,
                 city: row.city,
                 zip_code: row.zip_code,
+                locality: row.locality,
+                discount_rate: row.discount_rate,
                 tests: [],
             });
         }
@@ -47,20 +49,25 @@ exports.createBooking = async (req, res) => {
 
   const {
     fullName, email, phone, appointmentType, appointmentDate, timeSlot,
-    specialInstructions, address, city, zipCode, paymentMethod, selectedTests
+    specialInstructions, address, city, zipCode, locality, paymentMethod, selectedTests, discountRate
   } = req.body;
 
-  const totalPrice = selectedTests.reduce((total, test) => total + test.price, 0) + (appointmentType === 'home-collection' ? 200 : 0);
+  // Use a default value of 0 if discountRate is undefined or not a number
+  const validDiscountRate = typeof discountRate === 'number' ? discountRate : 0;
+
+  const testsTotal = selectedTests.reduce((total, test) => total + (Number(test.price) || 0), 0);
+  const discountedTotal = testsTotal * (1 - validDiscountRate);
+  const totalPrice = discountedTotal + (appointmentType === 'home-collection' ? 200 : 0);
   const client = await db.pool.connect();
 
   try {
     await client.query('BEGIN');
     const bookingQuery = `
-      INSERT INTO bookings (full_name, email, phone, appointment_type, appointment_date, time_slot, special_instructions, address, city, zip_code, payment_method, total_price)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      INSERT INTO bookings (full_name, email, phone, appointment_type, appointment_date, time_slot, special_instructions, address, city, zip_code, locality, payment_method, total_price, discount_rate)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING id
     `;
-    const bookingValues = [fullName, email, phone, appointmentType, appointmentDate, timeSlot, specialInstructions, address, city, zipCode, paymentMethod, totalPrice];
+    const bookingValues = [fullName, email, phone, appointmentType, appointmentDate, timeSlot, specialInstructions, address, city, zipCode, locality, paymentMethod, totalPrice, validDiscountRate];
     const bookingResult = await client.query(bookingQuery, bookingValues);
     const newBookingData = bookingResult.rows[0];
     const bookingId = newBookingData.id;
@@ -71,6 +78,7 @@ exports.createBooking = async (req, res) => {
       return client.query(testQuery, testValues);
     });
     await Promise.all(testInsertPromises);
+
 
     await client.query('COMMIT');
         // --- NEW: EMIT REAL-TIME EVENT ---
@@ -94,22 +102,62 @@ const io = req.app.get('socketio');
 // @desc    Edit a booking's details
 // @route   PUT /api/bookings/:id
 exports.editBooking = async (req, res) => {
-    const { id } = req.params;
-    const { fullName, phone, appointmentDate, timeSlot } = req.body;
-    try {
-        const { rows } = await db.query(
-            'UPDATE bookings SET full_name = $1, phone = $2, appointment_date = $3, time_slot = $4 WHERE id = $5 RETURNING *',
-            [fullName, phone, appointmentDate, timeSlot, id]
-        );
-        if (rows.length === 0) return res.status(404).json({ msg: 'Booking not found.' });
-        
-        const io = req.app.get('socketio');
-        io.emit('booking_updated', rows[0]);
-        res.status(200).json(rows[0]);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
+  const { id } = req.params;
+  const { fullName, phone, appointmentDate, timeSlot, tests } = req.body;
+
+  if (!Array.isArray(tests)) {
+      return res.status(400).json({ msg: 'Tests must be an array.' });
+  }
+
+  const client = await db.pool.connect();
+  try {
+      await client.query('BEGIN');
+
+      // Step 1: Fetch the existing booking to get discount_rate and appointment_type
+      const bookingDetailsResult = await client.query('SELECT discount_rate, appointment_type FROM bookings WHERE id = $1', [id]);
+      if (bookingDetailsResult.rows.length === 0) {
+          await client.query('ROLLBACK');
+          return res.status(404).json({ msg: 'Booking not found.' });
+      }
+      const { discount_rate, appointment_type } = bookingDetailsResult.rows[0];
+
+      // Step 2: Recalculate total price using the correct numeric conversion
+      const testsTotal = tests.reduce((total, test) => total + (Number(test.price) || 0), 0);
+      const discountedTotal = testsTotal * (1 - (discount_rate || 0));
+      const newTotalPrice = discountedTotal + (appointment_type === 'home-collection' ? 200 : 0);
+
+      // Step 3: Update the main booking record with new details and the recalculated price
+      const updatedBookingResult = await client.query(
+          'UPDATE bookings SET full_name = $1, phone = $2, appointment_date = $3, time_slot = $4, total_price = $5 WHERE id = $6 RETURNING *',
+          [fullName, phone, appointmentDate, timeSlot, newTotalPrice, id]
+      );
+
+      // Step 4: Remove old tests associated with the booking
+      await client.query('DELETE FROM booking_tests WHERE booking_id = $1', [id]);
+
+      // Step 5: Insert the new list of tests
+      const testInsertPromises = tests.map(test => {
+          const testQuery = 'INSERT INTO booking_tests (booking_id, test_id, test_name, price, category) VALUES ($1, $2, $3, $4, $5)';
+          const testValues = [id, test.id, test.name, test.price, test.category || null];
+          return client.query(testQuery, testValues);
+      });
+      await Promise.all(testInsertPromises);
+
+      await client.query('COMMIT');
+
+      // Step 6: Emit a real-time event with the fully updated booking object
+      const io = req.app.get('socketio');
+      const finalUpdatedBooking = { ...updatedBookingResult.rows[0], tests };
+      io.emit('booking_updated', finalUpdatedBooking);
+
+      res.status(200).json(finalUpdatedBooking);
+  } catch (err) {
+      await client.query('ROLLBACK');
+      console.error(err.message);
+      res.status(500).send('Server Error');
+  } finally {
+      client.release();
+  }
 };
 
 // Handles fetching all bookings for the admin dashboard
@@ -119,7 +167,7 @@ exports.getAllBookings = async (req, res) => {
         SELECT 
             b.id as booking_id, b.full_name, b.email, b.phone, b.appointment_type, 
             b.appointment_date, b.time_slot, b.total_price, b.created_at,
-            b.address, b.city, b.zip_code,
+            b.address, b.city, b.zip_code, b.locality, b.discount_rate, -- Added discount_rate here
             bt.test_id, bt.test_name, bt.price
         FROM bookings b
         LEFT JOIN booking_tests bt ON b.id = bt.booking_id
@@ -145,7 +193,7 @@ exports.findBookingsByPhone = async (req, res) => {
         SELECT 
             b.id as booking_id, b.full_name, b.email, b.phone, b.appointment_type, 
             b.appointment_date, b.time_slot, b.total_price, b.created_at,
-            b.address, b.city, b.zip_code,
+            b.address, b.city, b.zip_code, b.locality, b.discount_rate, -- Added discount_rate here
             bt.test_id, bt.test_name, bt.price
         FROM bookings b
         LEFT JOIN booking_tests bt ON b.id = bt.booking_id
@@ -185,6 +233,22 @@ exports.getBookingStatsByCity = async (req, res) => {
 
 // @desc Get booking statistics based of Locality
 // @route GET /api/stats/bookings-by-locality
+exports.getBookingStatsByLocality = async (req, res) => {
+  try {
+    const query = `
+        SELECT locality, COUNT(*) as count 
+        FROM bookings 
+        WHERE locality IS NOT NULL AND locality <> '' 
+        GROUP BY locality
+        ORDER BY count DESC;
+    `;
+    const { rows } = await db.query(query);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Database Error:', error);
+    res.status(500).json({ message: 'Server error while fetching locality stats' });
+  }
+};
 
 
 // @desc    Update a booking's status
@@ -243,4 +307,3 @@ exports.deleteBooking = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
-

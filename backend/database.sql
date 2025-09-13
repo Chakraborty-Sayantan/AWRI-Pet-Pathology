@@ -15,6 +15,7 @@ CREATE TABLE bookings (
     total_price NUMERIC(10, 2) NOT NULL,
     status VARCHAR(50) DEFAULT 'pending' NOT NULL,
     location_id INTEGER REFERENCES locations(id),
+    locality VARCHAR(100)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -66,3 +67,7 @@ CREATE TABLE contact_submissions (
     newsletter BOOLEAN,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add the locality column to the bookings table
+ALTER TABLE bookings
+ADD COLUMN locality VARCHAR(100);

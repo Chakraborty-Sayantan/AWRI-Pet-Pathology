@@ -28,7 +28,7 @@ interface Contact {
 }
 
 interface LocationStat {
-    city: string;
+    locality: string;
     count: string;
 }
 
@@ -48,9 +48,9 @@ export default function AdminDashboard() {
         const [bookingsRes, contactsRes, locationStatsRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, { headers }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/stats/by-city`, { headers })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/stats/by-locality`, { headers }) // Changed to fetch from new locality endpoint
         ]);
-        
+
         const bookingsData = await bookingsRes.json();
         const contactsData = await contactsRes.json();
         const locationStatsData = await locationStatsRes.json();
@@ -75,15 +75,15 @@ export default function AdminDashboard() {
 
     const handleNewBooking = (newBooking: Booking) => {
         setBookings(prevBookings => [newBooking, ...prevBookings]);
-        if (newBooking.city) {
+        if (newBooking.locality) {
             setLocationStats(prevStats => {
-                const cityIndex = prevStats.findIndex(stat => stat.city === newBooking.city);
-                if (cityIndex > -1) {
+                const localityIndex = prevStats.findIndex(stat => stat.locality === newBooking.locality);
+                if (localityIndex > -1) {
                     const newStats = [...prevStats];
-                    newStats[cityIndex].count = String(parseInt(newStats[cityIndex].count, 10) + 1);
+                    newStats[localityIndex].count = String(parseInt(newStats[localityIndex].count, 10) + 1);
                     return newStats;
                 } else {
-                    return [...prevStats, { city: String(newBooking.city), count: '1' }];
+                    return [...prevStats, { locality: String(newBooking.locality), count: '1' }];
                 }
             });
         }
