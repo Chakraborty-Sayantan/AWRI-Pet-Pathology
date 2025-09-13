@@ -9,8 +9,8 @@ export default function ContactsPage() {
   return (
     <div className="space-y-8">
       <FadeInSection>
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Contact Messages</h1>
-        <p className="text-gray-500 dark:text-gray-400">View all submissions from the contact form.</p>
+        <h1 className="text-3xl font-bold text-gray-800">Contact Messages</h1>
+        <p className="text-gray-500">View all submissions from the contact form.</p>
       </FadeInSection>
       <FadeInSection delay={100}>
         <ContactsTable />

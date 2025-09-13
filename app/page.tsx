@@ -15,7 +15,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 
 export default function PathologicalLabPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <StickyHoursBanner />
       <NavigationBar />
 
@@ -23,7 +23,7 @@ export default function PathologicalLabPage() {
       <section className="bg-transparent py-8">
         <div className="container mx-auto px-4 text-center">
           <TypewriterText
-            text="Designed for Pets, Loved By Pet Parents."
+            text="Created for Pets, Loved By Pet Parents."
             speed={80}
             className="text-2xl md:text-3xl lg:text-4xl bg-gradient-to-r from-[#439CFB] to-[#F187FB] bg-clip-text text-transparent px-4 py-2"
           />

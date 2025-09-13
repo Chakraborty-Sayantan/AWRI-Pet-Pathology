@@ -20,6 +20,7 @@ interface Booking {
   created_at: string;
   tests: any[];
   city?: string;
+  locality?: string;
 }
 
 interface Contact {
@@ -54,7 +55,6 @@ export default function AdminDashboard() {
         const contactsData = await contactsRes.json();
         const locationStatsData = await locationStatsRes.json();
 
-        // Ensure data is an array before setting state
         if (Array.isArray(bookingsData)) {
             setBookings(bookingsData);
         }
@@ -96,8 +96,6 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  // --- THIS IS THE FIX ---
-  // Ensure bookings is an array before calling .reduce()
   const totalRevenue = Array.isArray(bookings) ? bookings.reduce((acc, booking) => acc + parseFloat(booking.total_price || '0'), 0) : 0;
   const totalBookings = Array.isArray(bookings) ? bookings.length : 0;
   const totalMessages = Array.isArray(contacts) ? contacts.length : 0;
@@ -112,13 +110,37 @@ export default function AdminDashboard() {
 
 
   if (isLoading) {
-    return <div className="text-center p-10">Loading Dashboard...</div>
+    return (
+        <div className="space-y-8">
+            <FadeInSection>
+                <div className="h-8 w-1/4 bg-gray-200 rounded animate-pulse"></div>
+            </FadeInSection>
+            <FadeInSection delay={100}>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="h-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-24 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+            </FadeInSection>
+            <div className="grid gap-8 lg:grid-cols-2">
+                <FadeInSection delay={200}>
+                    <div className="h-80 bg-gray-200 rounded animate-pulse"></div>
+                </FadeInSection>
+                <FadeInSection delay={300}>
+                    <div className="h-80 bg-gray-200 rounded animate-pulse"></div>
+                </FadeInSection>
+            </div>
+             <FadeInSection delay={400}>
+                <div className="h-80 bg-gray-200 rounded animate-pulse"></div>
+            </FadeInSection>
+        </div>
+    )
   }
 
   return (
     <div className="space-y-8">
       <FadeInSection>
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
       </FadeInSection>
 
       <FadeInSection delay={100}>
@@ -139,9 +161,9 @@ export default function AdminDashboard() {
       </div>
 
       <FadeInSection delay={400}>
-        <Card>
+        <Card className="bg-gray-50">
             <CardHeader>
-                <CardTitle>Recent Bookings Revenue</CardTitle>
+                <CardTitle className="text-gray-800">Recent Bookings Revenue</CardTitle>
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>

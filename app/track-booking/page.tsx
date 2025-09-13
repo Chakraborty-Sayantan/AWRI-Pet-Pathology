@@ -59,23 +59,23 @@ export default function TrackBookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <NavigationBar />
       <main className="flex-1 py-12 md:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               Track Your Booking
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+            <p className="text-lg text-gray-600 mb-8">
               Enter the 10-digit phone number you used to book your appointment to see its status.
             </p>
           </div>
 
-          <Card className="max-w-xl mx-auto">
+          <Card className="max-w-xl mx-auto bg-gray-50">
             <CardContent className="p-6">
               <form onSubmit={handleSearch} className="flex items-center gap-4">
-                <div className="flex-1 relative">
+                <div className="flex-1 relative bg-gray-50">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">+91</span>
                   <Input
                     type="tel"

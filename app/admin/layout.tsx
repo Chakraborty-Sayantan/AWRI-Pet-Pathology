@@ -14,7 +14,7 @@ export default function AdminLayout({
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen w-full bg-gray-50 flex">
       <Sidebar isCollapsed={isSidebarCollapsed} />
       
       <div className={cn(
