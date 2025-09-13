@@ -30,7 +30,9 @@ export function RecentBookings({ bookings }: { bookings: Booking[] }) {
               <p className="text-sm text-muted-background">{new Date(booking.created_at).toLocaleDateString()}</p>
             </div>
             <div className="ml-auto font-medium">
-                <Badge variant="outline" className="text-gray-900">₹{parseFloat(booking.total_price).toFixed(2)}</Badge>
+            <Badge variant="outline" className="text-gray-900">
+                {isNaN(parseFloat(booking.total_price)) ? 'N/A' : `₹${parseFloat(booking.total_price).toFixed(2)}`}
+            </Badge>
             </div>
           </div>
         ))}

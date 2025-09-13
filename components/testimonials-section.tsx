@@ -25,7 +25,7 @@ export function TestimonialsSection() {
       rating: 5,
       comment:
         "Excellent service and very accurate results. The staff is professional and the online booking system is so convenient. My Golden Retriever Max got his blood work done here and the results were detailed and easy to understand.",
-      avatar: "/placeholder.svg?height=60&width=60&text=SJ",
+      avatar: "/placeholder-user.jpg",
       petName: "Max",
       petType: "Golden Retriever",
     },
@@ -35,7 +35,7 @@ export function TestimonialsSection() {
       rating: 5,
       comment:
         "Fast turnaround time and detailed reports. The home collection service is a game-changer for busy pet parents like me. Luna was comfortable during the sample collection process.",
-      avatar: "/placeholder.svg?height=60&width=60&text=MC",
+      avatar: "/placeholder-user.jpg",
       petName: "Luna",
       petType: "Siberian Husky",
     },
@@ -45,7 +45,7 @@ export function TestimonialsSection() {
       rating: 5,
       comment:
         "The veterinary testing for both my pets was thorough and affordable. Great to see they care about our furry family members with such dedication and expertise.",
-      avatar: "/placeholder.svg?height=60&width=60&text=ER",
+      avatar: "/placeholder-user.jpg",
       petName: "Buddy",
       petType: "Labrador",
     },
@@ -55,7 +55,7 @@ export function TestimonialsSection() {
       rating: 5,
       comment:
         "Specialized testing for my parrot was handled with great care. The staff understood the unique needs of avian patients and provided excellent service throughout.",
-      avatar: "/placeholder.svg?height=60&width=60&text=DT",
+      avatar: "/placeholder-user.jpg",
       petName: "Charlie",
       petType: "Pug",
     },
@@ -65,7 +65,7 @@ export function TestimonialsSection() {
       rating: 5,
       comment:
         "Home collection service was perfect for my anxious rabbit. The technician was gentle and experienced with small animals. Results came back quickly with clear explanations.",
-      avatar: "/placeholder.svg?height=60&width=60&text=LP",
+      avatar: "/placeholder-user.jpg",
       petName: "Snowball",
       petType: "Spitz",
     },
@@ -75,7 +75,7 @@ export function TestimonialsSection() {
       rating: 5,
       comment:
         "Regular health monitoring for my 12-year-old dog has been made so easy with their comprehensive panels. The staff always explains everything clearly and with compassion.",
-      avatar: "/placeholder.svg?height=60&width=60&text=JW",
+      avatar: "/placeholder-user.jpg",
       petName: "Rusty",
       petType: "Senior Beagle",
     },
@@ -167,7 +167,7 @@ export function TestimonialsSection() {
                 {/* Author Info */}
                 <div className="flex items-center justify-center gap-4">
                   <Image
-                    src={testimonials[currentIndex].avatar || "/placeholder.svg"}
+                    src={testimonials[currentIndex].avatar}
                     alt={testimonials[currentIndex].name}
                     width={60}
                     height={60}

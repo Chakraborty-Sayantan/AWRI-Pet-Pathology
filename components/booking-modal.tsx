@@ -1,5 +1,8 @@
 "use client"
 
+import type React from "react"
+import { useState, useEffect, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -14,9 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
-import { CalendarIcon, CheckCircle, TestTube } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { CalendarIcon, CheckCircle, Search, TestTube, X } from "lucide-react"
 import { LoadingSpinner } from "./loading-spinner"
 
 
@@ -52,6 +53,13 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
     discount: 0,
   })
 
+  // New state for search and filter functionality
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedTest, setSelectedTest] = useState("");
+  const [testAdded, setTestAdded] = useState(false);
+
+
   useEffect(() => {
     if (preselectedTests.length > 0) {
       setFormData((prev) => ({
@@ -64,7 +72,7 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
     }
   }, [preselectedTests, isOpen]);
 
-  
+
   const [formErrors, setFormErrors] = useState({
     fullName: "",
     email: "",
@@ -78,7 +86,7 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
     discount: "",
   });
 
- const testCategories: Record<string, { id: string; name: string; price: number }[]> = {
+const testCategories: Record<string, { id: string; name: string; price: number }[]> = {
     "All Categories": [],
     "HEMATOLOGY & COAGULATION": [
       { id: "AWRI01", name: "HEMOGLOBIN; HB", price: 150 },
@@ -251,10 +259,17 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
   const allTests = Object.values(testCategories).flat();
   testCategories["All Categories"] = allTests;
 
-
-  const [selectedCategory, setSelectedCategory] = useState("All Categories")
-  const [selectedTest, setSelectedTest] = useState("")
-  const [testAdded, setTestAdded] = useState(false);
+  // Filter tests based on category and search term
+  const filteredTests = useMemo(() => {
+    let testsToFilter = selectedCategory === "All Categories" ? allTests : testCategories[selectedCategory];
+    if (searchTerm) {
+        testsToFilter = testsToFilter.filter(test =>
+            test.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            test.id.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }
+    return testsToFilter;
+  }, [searchTerm, selectedCategory]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -265,9 +280,9 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
 
   const timeSlots = useMemo(() => {
     if (!selectedDate) return [];
-    
+
     const day = selectedDate.getDay();
-    
+
     if (day === 0) {
         return ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
     } else if (day === 6) {
@@ -277,13 +292,12 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
     }
   }, [selectedDate]);
 
-    
     const validateStep1 = () => {
       const errors = { ...formErrors };
       let isValid = true;
       const strictEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       const indianPhoneRegex = /^[6-9]\d{9}$/;
-    
+
       if (!formData.fullName.trim()) {
           errors.fullName = "Full name is required.";
           isValid = false;
@@ -291,12 +305,12 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
           errors.fullName = "Full name can only contain letters and spaces.";
           isValid = false;
       }
-    
+
       if (formData.email && !strictEmailRegex.test(formData.email)) {
           errors.email = "Please enter a valid email address.";
           isValid = false;
       }
-    
+
       if (!formData.phone.trim()) {
           errors.phone = "Phone number is required.";
           isValid = false;
@@ -304,7 +318,7 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
           errors.phone = "Please enter a valid 10-digit Indian mobile number.";
           isValid = false;
       }
-    
+
       setFormErrors(errors);
       return isValid;
     };
@@ -313,7 +327,7 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
         const errors = { ...formErrors };
         let isValid = true;
         const indianZipRegex = /^\d{6}$/;
-    
+
         if (formData.appointmentType === 'home-collection') {
             if (!formData.address.trim()) {
                 errors.address = "Street address is required for home collection.";
@@ -345,7 +359,7 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
             errors.timeSlot = "Please select a time slot.";
             isValid = false;
         }
-    
+
         setFormErrors(errors);
         return isValid;
       }
@@ -360,18 +374,18 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
         setFormErrors(errors);
         return isValid;
       }
-  
+
     const nextStep = () => {
       if (currentStep === 1 && !validateStep1()) return;
       if (currentStep === 2 && !testAdded) return;
       if (currentStep === 3 && !validateStep3()) return;
       if (currentStep === 4 && !validateStep4()) return;
-      
+
       setCurrentStep((prev) => Math.min(prev + 1, 4));
     };
-  
+
     const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
-  
+
 
   const handleAddTest = () => {
     if (selectedTest && selectedCategory) {
@@ -405,7 +419,7 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
     const collectionFee = formData.appointmentType === "home-collection" ? 200 : 0
     return discountedTotal + collectionFee
   }
-  
+
   const handleSubmit = async () => {
     if(!validateStep4()) return;
     setIsSubmitting(true);
@@ -430,7 +444,7 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
       }
 
       const successData = await response.json();
-       router.push(`/booking-confirmed?id=${successData.bookingId}&name=${encodeURIComponent(formData.fullName)}`);
+      router.push(`/booking-confirmed?id=${successData.bookingId}&name=${encodeURIComponent(formData.fullName)}`);
 
       setTimeout(() => {
         setIsBooked(false);
@@ -510,18 +524,18 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
                   <div className="md:col-span-2 space-y-2">
                       <Label htmlFor="fullName">Full Name *</Label>
                       <Input id="fullName" value={formData.fullName} onChange={(e) => handleInputChange("fullName", e.target.value)} required />
-                      
+
                       {formErrors.fullName && <p className="text-sm text-red-500 mt-1">{formErrors.fullName}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address</Label>
                       <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} />
-                      
+
                       {formErrors.email && <p className="text-sm text-red-500 mt-1">{formErrors.email}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone Number *</Label>
-                      
+
                       <div className="flex items-center gap-2">
                           <div className="flex h-10 w-[70px] items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm">
                               +91
@@ -538,29 +552,79 @@ export function BookingModal({ isOpen, onClose, preselectedTests = [] }: Booking
             {currentStep === 2 && (
             <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Select Individual Tests</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label>Test Category</Label>
+                <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                            placeholder="Search tests by name or code..."
+                            className="pl-10"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        {searchTerm && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSearchTerm("")}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
                     <Select onValueChange={setSelectedCategory} value={selectedCategory}>
-                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                    <SelectContent>
-                        {Object.keys(testCategories).map((category) => (<SelectItem key={category} value={category}>{category}</SelectItem>))}
-                    </SelectContent>
+                        <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {Object.keys(testCategories).map((category) => (
+                                <SelectItem key={category} value={category}>{category}</SelectItem>
+                            ))}
+                        </SelectContent>
                     </Select>
                 </div>
-                <div className="space-y-2">
-                    <Label>Select Test</Label>
-                    <Select onValueChange={setSelectedTest} value={selectedTest} disabled={!selectedCategory}>
-                    <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
-                    <SelectContent>
-                        {(selectedCategory === "All Categories" ? allTests : testCategories[selectedCategory as keyof typeof testCategories]).map((test) => (
-                        <SelectItem key={test.id} value={test.id}>{test.name} - ₹{test.price}</SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
+
+                <div className="grid md:grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+                    {filteredTests.map((test) => (
+                        <Card
+                            key={test.id}
+                            className={cn(
+                                "cursor-pointer transition-all duration-300 hover:scale-105",
+                                formData.selectedTests.some((t) => t.id === test.id)
+                                    ? "bg-blue-600 text-white border-blue-600"
+                                    : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50"
+                            )}
+                            onClick={() => {
+                                const isSelected = formData.selectedTests.some((t) => t.id === test.id);
+                                if (isSelected) {
+                                    handleRemoveTest(test.id);
+                                } else {
+                                    const category = Object.keys(testCategories).find(key => 
+                                        testCategories[key as keyof typeof testCategories].some(t => t.id === test.id)
+                                    ) || "Unknown";
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        selectedTests: [...prev.selectedTests, { ...test, category }],
+                                    }));
+                                    setTestAdded(true);
+                                }
+                            }}
+                        >
+                            <CardContent className="p-4">
+                                <div className="flex items-center space-x-3">
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold">{test.name}</h4>
+                                        <p className="text-sm opacity-90">{test.id}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="font-bold">₹{test.price}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
-                </div>
-                <Button onClick={handleAddTest} disabled={!selectedTest} className="w-full md:w-auto">Add Test</Button>
+
                 {formData.selectedTests.length > 0 && (
                 <Card>
                     <CardContent className="p-4">

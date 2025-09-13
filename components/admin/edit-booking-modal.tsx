@@ -203,11 +203,11 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
         fullName: '',
         phone: '',
         appointmentDate: '',
-        timeSlot: '',
     });
     const [selectedTests, setSelectedTests] = useState<Test[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("All Categories");
     const [selectedTest, setSelectedTest] = useState("");
+    const [timeSlot, setTimeSlot] = useState("");
 
     useEffect(() => {
         if (booking) {
@@ -215,8 +215,8 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
                 fullName: booking.full_name,
                 phone: booking.phone,
                 appointmentDate: new Date(booking.appointment_date).toISOString().split('T')[0],
-                timeSlot: booking.time_slot,
             });
+            setTimeSlot(booking.time_slot);
             setSelectedTests(booking.tests || []);
         }
     }, [booking]);
@@ -247,8 +247,6 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
         const token = localStorage.getItem('admin-token');
         const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-        const testIds = selectedTests.map(t => t.id);
-
         try {
             const response = await fetch(`${apiUrl}/api/bookings/${booking.id}`, {
                 method: 'PUT',
@@ -256,8 +254,13 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
                     'Content-Type': 'application/json',
                     'x-auth-token': token || '',
                 },
-                body: JSON.stringify({ ...formData, tests: testIds }),
+                body: JSON.stringify({
+                    ...formData,
+                    timeSlot,
+                    tests: selectedTests,
+                }),
             });
+            
             if (!response.ok) throw new Error('Failed to update booking');
             onSave();
             onClose();
@@ -271,7 +274,7 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Edit Booking #{booking.id}</DialogTitle>
                 </DialogHeader>
@@ -290,7 +293,7 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="timeSlot">Time Slot</Label>
-                        <Input id="timeSlot" value={formData.timeSlot} onChange={handleChange} required />
+                        <Input id="timeSlot" value={timeSlot} onChange={(e) => setTimeSlot(e.target.value)} required />
                     </div>
 
                     <div className="space-y-4 pt-4 border-t">
@@ -324,14 +327,16 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
                                 <CardContent className="p-4">
                                 <h4 className="font-semibold mb-3">Selected Tests</h4>
                                 <div className="space-y-2 max-h-40 overflow-y-auto">
-                                    {selectedTests.map((test) => (
+                                    {selectedTests.map(test => (
                                     <div key={test.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                         <div className="flex-1">
                                             <span className="text-sm font-medium">{test.name}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold">₹{test.price}</span>
-                                            <Button variant="outline" size="sm" onClick={() => handleRemoveTest(test.id)} className="h-6 w-6 p-0">-</Button>
+                                            <span className="text-sm font-semibold">₹{parseFloat(test.price).toFixed(2)}</span>
+                                            <Button variant="ghost" size="icon" onClick={() => handleRemoveTest(test.id)} className="text-red-500 hover:bg-red-50">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
                                     </div>
                                     ))}

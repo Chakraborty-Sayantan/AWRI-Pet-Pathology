@@ -200,7 +200,9 @@ export function BookingsTable() {
                                             <Switch checked={booking.status === 'completed'} onCheckedChange={(checked) => handleStatusChange(booking.id, checked)} />
                                         </div>
                                     </div>
-                                    <div className="w-[10%] text-center border-r p-4">₹{parseFloat(booking.total_price).toFixed(2)}</div>
+                                    <div className="w-[10%] text-center border-r p-4">
+                                        {isNaN(parseFloat(booking.total_price)) ? 'N/A' : `₹${parseFloat(booking.total_price).toFixed(2)}`}
+                                    </div>
                                     <div className="w-[10%] text-center p-4 flex justify-center items-center">
                                         <Button variant="ghost" size="icon" onClick={() => setEditingBooking(booking)}><Edit className="h-4 w-4" /></Button>
                                         <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(booking.id)}><Trash2 className="h-4 w-4" /></Button>
