@@ -430,6 +430,7 @@ const testCategories: Record<string, { id: string; name: string; price: number }
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          discountRate: formData.discount,
           phone: "+91" + formData.phone, 
           appointmentDate: selectedDate ? format(selectedDate, "yyyy-MM-dd") : null,
           total_price: getTotalPrice()

@@ -276,7 +276,7 @@ export function EditBookingModal({ isOpen, onClose, booking, onSave }: EditBooki
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Edit Booking #{booking.id}</DialogTitle>
+                    <DialogTitle>Edit Booking AWRI_#{booking.id}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

@@ -34,6 +34,7 @@ export interface Booking {
     results_url: string | null;
     results_filename: string | null;
     tests: Test[];
+    created_at: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -111,9 +112,8 @@ export function BookingsTable() {
     const handleStatusChange = async (bookingId: number, newStatus: boolean) => {
         const statusString = newStatus ? 'completed' : 'pending';
         const token = localStorage.getItem('admin-token');
-        setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: statusString } : b));
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}/status`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,8 +121,16 @@ export function BookingsTable() {
                 },
                 body: JSON.stringify({ status: statusString })
             });
+            if (response.ok) {
+                const updatedBooking = await response.json();
+                setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, ...updatedBooking } : b));
+            } else {
+                // If the update fails, refetch all bookings to ensure data consistency
+                fetchBookings();
+            }
         } catch (error) {
             console.error("Failed to update status:", error);
+            // Refetch on error as a fallback
             fetchBookings();
         }
     };
@@ -190,7 +198,7 @@ export function BookingsTable() {
                         {paginatedBookings.map((booking) => (
                             <AccordionItem value={`item-${booking.id}`} key={booking.id} className="border-b last:border-b-0">
                                 <div className="flex items-center hover:bg-muted/50 text-sm">
-                                    <div className="w-[10%] text-center font-semibold border-r p-4">#{booking.id}</div>
+                                    <div className="w-[10%] text-center font-semibold border-r p-4">AWRI_#{booking.id}</div>
                                     <div className="w-[20%] text-center font-medium border-r p-4">{booking.full_name}</div>
                                     <div className="w-[15%] text-center border-r p-4">{booking.phone}</div>
                                     <div className="w-[15%] text-center border-r p-4">{new Date(booking.appointment_date).toLocaleDateString()}</div>

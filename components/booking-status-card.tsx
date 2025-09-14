@@ -15,7 +15,7 @@ export function BookingStatusCard({ booking }: { booking: Booking }) {
   return (
     <Card className="w-full shadow-md hover:shadow-xl transition-shadow">
       <CardHeader className="flex flex-row items-center justify-between bg-gray-50 rounded-t-lg p-4">
-        <CardTitle className="text-lg">Booking ID: #{booking.id}</CardTitle>
+        <CardTitle className="text-lg">Booking ID: AWRI_#{booking.id}</CardTitle>
         <Badge>Pending</Badge>
       </CardHeader>
       <CardContent className="p-6 grid gap-4 md:grid-cols-2">
