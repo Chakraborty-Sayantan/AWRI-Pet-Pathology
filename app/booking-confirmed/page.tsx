@@ -32,7 +32,7 @@ function ConfirmationContent() {
                     Your appointment is scheduled. You can track its status using your phone number.
                 </p>
                 <div className="text-lg font-semibold bg-blue-50 dark:bg-gray-800 p-4 rounded-md border">
-                    Booking ID: <span className="text-blue-600">#{bookingId}</span>
+                    Booking ID: <span className="text-blue-600">AWRI_#{bookingId}</span>
                 </div>
                 <Button asChild className="mt-8">
                     <Link href="/track-booking">
