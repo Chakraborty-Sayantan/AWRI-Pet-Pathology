@@ -23,6 +23,7 @@ const structureBookingsWithTests = (rows) => {
                 city: row.city,
                 zip_code: row.zip_code,
                 locality: row.locality,
+                status: row.status,
                 discount_rate: row.discount_rate,
                 tests: [],
             });
@@ -167,7 +168,7 @@ exports.getAllBookings = async (req, res) => {
         SELECT 
             b.id as booking_id, b.full_name, b.email, b.phone, b.appointment_type, 
             b.appointment_date, b.time_slot, b.total_price, b.created_at,
-            b.address, b.city, b.zip_code, b.locality, b.discount_rate, -- Added discount_rate here
+            b.address, b.city, b.zip_code, b.locality, b.status, b.discount_rate,
             bt.test_id, bt.test_name, bt.price
         FROM bookings b
         LEFT JOIN booking_tests bt ON b.id = bt.booking_id
@@ -306,4 +307,62 @@ exports.deleteBooking = async (req, res) => {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
+};
+
+// @desc    Get booking statistics grouped by zip code
+// @route   GET /api/bookings/stats/by-zipcode
+exports.getBookingStatsByZipCode = async (req, res) => {
+  try {
+    const query = `
+        SELECT zip_code, COUNT(*) as count 
+        FROM bookings 
+        WHERE zip_code IS NOT NULL AND zip_code <> '' 
+        GROUP BY zip_code 
+        ORDER BY count DESC;
+    `;
+    const { rows } = await db.query(query);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Database Error:', error);
+    res.status(500).json({ message: 'Server error while fetching zip code stats' });
+  }
+};
+
+// @desc    Get booking statistics grouped by month
+// @route   GET /api/bookings/stats/by-month
+exports.getBookingStatsByMonth = async (req, res) => {
+  try {
+    const query = `
+        SELECT 
+            TO_CHAR(appointment_date, 'YYYY-MM') as month, 
+            COUNT(*) as count 
+        FROM bookings 
+        GROUP BY month 
+        ORDER BY month;
+    `;
+    const { rows } = await db.query(query);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Database Error:', error);
+    res.status(500).json({ message: 'Server error while fetching monthly stats' });
+  }
+};
+
+// @desc    Get most popular tests
+// @route   GET /api/bookings/stats/popular-tests
+exports.getMostPopularTests = async (req, res) => {
+  try {
+    const query = `
+        SELECT test_name, COUNT(*) as count 
+        FROM booking_tests 
+        GROUP BY test_name 
+        ORDER BY count DESC 
+        LIMIT 5;
+    `;
+    const { rows } = await db.query(query);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Database Error:', error);
+    res.status(500).json({ message: 'Server error while fetching popular tests' });
+  }
 };
